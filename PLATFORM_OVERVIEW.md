@@ -6,7 +6,7 @@
 
 <p align="center">
   How the GeoGami platform fits together, how a study flows through it, and what data you get out.<br/>
-  For developer setup, see the README in each component repository.
+  Working on the code instead? See the <a href="DEVELOPER_OVERVIEW.md">Developer Overview</a>.
 </p>
 
 ---
@@ -31,10 +31,10 @@ This document explains the platform from the perspective of a **researcher or st
 
 | Component | What it is | You use it to… |
 |---|---|---|
-| **GeoGami app** ([geogami](https://github.com/origami-team/geogami)) | Mobile/web app (iOS, Android, browser) | Create and edit games; participants use it to play |
-| **GeoGami server** ([origami-backend](https://github.com/origami-team/origami-backend)) | Central backend and database | (Runs in the background — stores accounts, games, and all recorded tracks) |
-| **Analytics dashboard** ([geogami-dashboard](https://github.com/origami-team/geogami-dashboard)) | Browser-based analysis tool | Inspect sessions, view routes on maps, compare participants, export data |
-| **Virtual environment** ([geogami-virtual-environment-dev](https://github.com/origami-team/geogami-virtual-environment-dev)) | Unity 3D virtual world (browser or desktop) | Run *virtual* games indoors or remotely — participants navigate a 3D world instead of the real one |
+| **GeoGami app** ([geogami](https://github.com/geogami-team/geogami)) | Mobile/web app (iOS, Android, browser) | Create and edit games; participants use it to play |
+| **GeoGami server** ([origami-backend](https://github.com/geogami-team/origami-backend)) | Central backend and database | (Runs in the background — stores accounts, games, and all recorded tracks) |
+| **Analytics dashboard** ([geogami-dashboard](https://github.com/geogami-team/geogami-dashboard)) | Browser-based analysis tool | Inspect sessions, view routes on maps, compare participants, export data |
+| **Virtual environment** ([geogami-virtual-environment-dev](https://github.com/geogami-team/geogami-virtual-environment-dev)) | Unity 3D virtual world (browser or desktop) | Run *virtual* games indoors or remotely — participants navigate a 3D world instead of the real one |
 
 As a study leader you interact mainly with the **app** (game authoring, running sessions) and the **dashboard** (evaluation). The server works invisibly in the background, and the virtual environment is only needed for virtual-world studies.
 
@@ -95,7 +95,7 @@ From the app's **evaluate** section you launch the analytics dashboard. There yo
 - compare participants per task (e.g., route length vs. time for navigation tasks, answer error for direction tasks),
 - view statistics plots across sessions.
 
-The dashboard's tabs and controls are described step by step in the [Dashboard User Guide](https://github.com/origami-team/geogami-dashboard/blob/main/docs/USER_GUIDE.md).
+The dashboard's tabs and controls are described step by step in the [Dashboard User Guide](https://github.com/geogami-team/geogami-dashboard/blob/HEAD/docs/USER_GUIDE.md).
 
 ### 4. Export — take the data into your analysis tools
 
@@ -146,9 +146,9 @@ Because both environments share the same task catalogue and data format, you can
 ## Related documents
 
 - [Glossary](GLOSSARY.md) — definitions of all platform terms (game, task, track, …)
-- [Dashboard User Guide](https://github.com/origami-team/geogami-dashboard/blob/main/docs/USER_GUIDE.md) — step-by-step guide to the analysis tabs
-- [Task types and map features](https://github.com/origami-team/geogami#map-features-and-task-types-in-geogami) — the full catalogue of tasks, question/answer types, and map settings
-- Component READMEs for setup and deployment: [app](https://github.com/origami-team/geogami) · [server](https://github.com/origami-team/origami-backend) · [dashboard](https://github.com/origami-team/geogami-dashboard) · [virtual environment](https://github.com/origami-team/geogami-virtual-environment-dev)
+- [Dashboard User Guide](https://github.com/geogami-team/geogami-dashboard/blob/HEAD/docs/USER_GUIDE.md) — step-by-step guide to the analysis tabs
+- [Task types and map features](https://github.com/geogami-team/geogami#map-features-and-task-types-in-geogami) — the full catalogue of tasks, question/answer types, and map settings
+- Component READMEs for setup and deployment: [app](https://github.com/geogami-team/geogami) · [server](https://github.com/geogami-team/origami-backend) · [dashboard](https://github.com/geogami-team/geogami-dashboard) · [virtual environment](https://github.com/geogami-team/geogami-virtual-environment-dev)
 
 ---
 

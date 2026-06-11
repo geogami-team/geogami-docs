@@ -68,7 +68,7 @@ Per-task settings that control what spatial information the participant gets —
 |---|---|
 | **GeoGami app** | The mobile/web client (iOS, Android, browser) used to author games and to play them. |
 | **GeoGami server** | The central backend storing accounts, games, and tracks, and coordinating real-time play. Study leaders normally never interact with it directly. |
-| **Dashboard** | The browser-based analytics tool for inspecting, comparing, and exporting tracks. Opened from the app's evaluate section. See the [Dashboard User Guide](https://github.com/origami-team/geogami-dashboard/blob/main/docs/USER_GUIDE.md). |
+| **Dashboard** | The browser-based analytics tool for inspecting, comparing, and exporting tracks. Opened from the app's evaluate section. See the [Dashboard User Guide](https://github.com/geogami-team/geogami-dashboard/blob/HEAD/docs/USER_GUIDE.md). |
 | **Role** | An account's permission level. Everyone can create and play games; viewing tracks requires an elevated role — **`scholar`** (researchers), **`trackAccess`** (evaluation-only access), **`contentAdmin`** / **`admin`** (platform administration). Roles are assigned by administrators. |
 | **Sharing** | Granting other registered GeoGami users (by email) access to one of your games' tracks, managed from the dashboard sidebar. Shared games appear in the recipients' dashboards; the creator can revoke access at any time. |
 | **Showroom** | A section of the app with demo maps, tasks, and virtual worlds — useful for previewing features before designing a study. |
