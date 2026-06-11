@@ -57,7 +57,7 @@ flowchart LR
     AUTHOR -- "create / edit games" --> SERVER
     SERVER -- "deliver game" --> APP
     APP -- "record track<br/>(GPS, answers, events)" --> SERVER
-    APP <-. "real-time sync<br/>(5-digit room code)" .-> VE
+    APP <-. "real-time sync<br/>(embedded 3D view)" .-> VE
     VE <-. "avatar position" .-> SERVER
     SERVER -- "tracks for your games" --> DASH
     DASH -- "CSV / JSON / maps / images" --> EXPORT(("Exports"))
@@ -81,7 +81,7 @@ Each task also carries **map settings** — these are your experimental controls
 ### 2. Run — participants play
 
 - **Real-world game:** the participant opens the game in the app on a phone and plays outdoors; GPS and compass drive position and heading.
-- **Virtual game:** the participant controls an avatar in the Unity virtual environment (a virtual city, building, or landscape) while the app acts as the map controller. Starting a virtual game in the app produces a **5-digit code**; entering the same code in the virtual environment links the two on the server, and avatar position and heading are synced live.
+- **Virtual game:** the participant enters a player name and presses play; the app then opens the Unity virtual environment (a virtual city, building, or landscape) **directly inside the app** and connects it automatically to the same session on the server — no codes to type. The participant steers an avatar through the 3D world while the app shows the map and tasks; avatar position and heading are synced live. For immersive setups, the virtual environment can also be played with a **VR headset**.
 
 During play the app records the track automatically — no extra action needed from the study leader.
 
@@ -130,7 +130,7 @@ Each participant run produces one **track** containing:
 |---|---|---|
 | Where participants are | Outdoors, on site | Indoors / remote, at a screen |
 | Position source | Device GPS + compass | Avatar in the Unity environment |
-| Equipment | Smartphone with the GeoGami app | Computer or browser running the virtual environment **plus** a device running the app as controller |
+| Equipment | Smartphone with the GeoGami app | A device running the GeoGami app — the 3D world opens embedded in the app; standalone desktop builds and **VR headsets** are also supported |
 | Typical use | Field studies, training in real space | Lab studies, controlled conditions, remote participation |
 | Task & map-feature catalogue | identical | identical (plus a layer-switch option specific to virtual worlds) |
 | Multiplayer | yes | yes |

@@ -55,7 +55,7 @@ flowchart TB
 
     UI -- "REST + JWT" --> REST
     UI <-- "rooms, lifecycle,<br/>avatar sync" --> SIO
-    VE <-- "avatar position/rotation,<br/>room join by 5-digit code" --> SIO
+    VE <-- "avatar position/rotation,<br/>room join via URL params" --> SIO
     DASH -- "REST + JWT<br/>(?token= from the UI)" --> REST
     REST --> DB
 ```
@@ -65,7 +65,7 @@ Key points:
 - **One server, two protocols.** Socket.IO is mounted on the same HTTP server as Express (port 3000). There is no separate real-time service.
 - **The server is the only writer to MongoDB.** The dashboard is read-only via REST; it never touches the database directly.
 - **Auth is JWT end-to-end.** The UI obtains access + refresh tokens from `/user/login`; the dashboard reuses the UI's token, passed as a `?token=` URL parameter when launched from the UI's evaluate page.
-- **The VE is a thin display.** Game logic, tasks, and track recording live in the UI; the VE only renders the 3D world and streams avatar state. Pairing happens via a 5-digit room code relayed through Socket.IO.
+- **The VE is a thin display.** Game logic, tasks, and track recording live in the UI; the VE only renders the 3D world and streams avatar state. To start a virtual game the UI embeds the VE WebGL build in an iframe (`playing-virenv` page) and passes the connection details — player name or game code, environment type, mode — as URL query parameters; both clients then join the same Socket.IO room automatically (keyed by player name in single-player, by game code in multiplayer). The VE can also run as a standalone desktop build or on a VR headset.
 
 ## Data model
 
@@ -75,7 +75,7 @@ The Mongoose schemas live in [origami-backend `src/models/`](https://github.com/
 |---|---|---|
 | **User** | Account, credentials, roles | `roles[]` (`user`, `scholar`, `trackAccess`, `contentAdmin`, `admin`), `refreshTokens[]` (individually revocable), `unconfirmedEmail` (safe email-change flow) |
 | **Game** | A game definition: ordered task list with per-task map settings | task `category` / `questionType` / `answerType` / `evaluate`, real-world vs. virtual flag, multiplayer flag, share list (user emails granted track access) |
-| **Track** | One participant play-through | waypoints (positions over time), events (timestamped task lifecycle), answers incl. photos, per-task timing |
+| **Track** | One participant play-through | waypoints (positions over time), events (timestamped task lifecycle, including answers and photos), per-task timing |
 
 Schema changes are managed with `migrate-mongo` (see [Conventions](#conventions)).
 
@@ -100,7 +100,7 @@ The full endpoint tables are in the [server README](https://github.com/geogami-t
 | Event | Direction | Purpose |
 |---|---|---|
 | `joinGame` / `newGame` | UI → server | Real-world multiplayer rooms and lifecycle |
-| `joinVEGame` | VE → server | Join a virtual-game room (5-digit code) |
+| `joinVEGame` | VE → server | Join a virtual-game room (keyed by player name / game code from the iframe URL params) |
 | `play` | VE → server | Register player, prepare avatars (multiplayer) |
 | `requestInitialAvatarPositionByVirApp` | VE → UI | Ask the controller app for a start position |
 | `deliverInitialAvatarPositionByGeoApp` | UI → VE | Initial position, rotation, avatar speed |

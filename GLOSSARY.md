@@ -57,8 +57,8 @@ Per-task settings that control what spatial information the participant gets —
 |---|---|
 | **Real-world game** | Played outdoors on a smartphone; position and heading come from GPS and compass. |
 | **Virtual game** | Played indoors or remotely: the participant steers an avatar through the Unity-based **virtual environment** while the GeoGami app serves as the map controller. Identical task catalogue and data format as real-world games. |
-| **Virtual environment (VE)** | The Unity 3D companion application (browser or desktop) providing virtual cities, buildings, and landscapes for virtual games. |
-| **5-digit code** | The pairing code shown when starting a virtual game in the app; entering it in the virtual environment connects both to the same room on the server, enabling live avatar synchronization. |
+| **Virtual environment (VE)** | The Unity 3D companion application providing virtual cities, buildings, and landscapes for virtual games. It opens embedded inside the GeoGami app; standalone desktop builds and **VR headsets** are also supported. |
+| **Pairing (virtual games)** | Starting a virtual game in the app opens the virtual environment in an embedded frame and connects both automatically to the same room on the server (based on the player name in single-player games, or the game code in multiplayer), enabling live avatar synchronization. |
 | **Multiplayer** | Several participants playing the same game simultaneously, with real-time synchronization via the server. Available in both environments. |
 | **Single-player** | One participant per game run — the default for most studies. |
 

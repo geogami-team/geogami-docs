@@ -49,7 +49,6 @@ A **track** is the complete recording of one participant's play-through of a gam
   "device": { ... },                     // see "device" section
   "waypoints": [ ... ],                  // see "waypoints" section
   "events": [ ... ],                     // see "events" section
-  "answers": null,                       // ALWAYS null — answers live inside events!
   "players": ["Girls power !!!!!"],      // player name(s) entered at game start
   "playersCount": 1,
   "isMultiplayerGame": true,             // only present for multiplayer tracks
@@ -58,7 +57,7 @@ A **track** is the complete recording of one participant's play-through of a gam
 }
 ```
 
-> ⚠️ The top-level `answers` field is always `null`. The actual answers are recorded as **events** (`ON_OK_CLICKED`, `PHOTO_SELECTED`, `MULTIPLE_CHOICE_SELECTED`) — see below.
+> ⚠️ **Legacy field:** tracks recorded before mid-2026 contain a top-level `"answers": null` field. It was never populated — ignore it. The actual answers are recorded as **events** (`ON_OK_CLICKED`, `PHOTO_SELECTED`, `MULTIPLE_CHOICE_SELECTED`) — see below.
 
 ## Multiplayer tracks
 
@@ -196,7 +195,7 @@ Useful for filtering (e.g. exclude simulator runs via `isVirtual`) and for repor
 
 ## Caveats and gotchas
 
-- `answers` at the top level is always `null` — answers are inside `events`.
+- Tracks recorded before mid-2026 have a top-level `answers` field that is always `null` — ignore it; answers are inside `events`.
 - Multiplayer files nest `waypoints`/`events`/`device` one level deeper (per player). Check `isMultiplayerGame` first.
 - In virtual games, coordinates are pseudo lat/lng derived from Unity scene units and `position.timestamp` is `0`; distances computed from them are in "virtual metres" via the same conversion, comparable within a world but not to real-world GPS quality.
 - `interaction.zoomCount` may be fractional (the app halves the raw counter to compensate for double-fired zoom events).
