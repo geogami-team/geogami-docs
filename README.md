@@ -12,6 +12,7 @@ Cross-component documentation for the GeoGami platform. Audience-first: start wi
 ## For developers
 
 - **[Developer Overview](DEVELOPER_OVERVIEW.md)** — system architecture, REST and Socket.IO contracts, data model, and how to run the full stack locally. **Start here.**
+- **[REST API Reference](API_REFERENCE.md)** — every HTTP endpoint of the server: auth requirements, payloads, responses, gotchas.
 - **[Socket.IO Event Reference](SOCKETIO_REFERENCE.md)** — every real-time event between app, server, and virtual environment: payloads, directions, rooms model.
 
 Each component repository has its own README with setup, configuration, and deployment instructions:
@@ -23,5 +24,4 @@ Each component repository has its own README with setup, configuration, and depl
 
 ## Planned
 
-- REST API reference (geogami-server)
 - Study-leader how-to guides (creating a game, running a virtual session, exporting for R/Python)

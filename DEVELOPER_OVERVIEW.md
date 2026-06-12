@@ -93,7 +93,7 @@ Route areas, all rooted at the server origin:
 | `/file/*` | Photo/file upload | JWT |
 | `/appversion/*` | Client version checks | Public |
 
-The full endpoint tables are in the [server README](https://github.com/geogami-team/origami-backend#api-overview). Role checks are middleware (`AuthController.roleAuthorization([...])`) on each route — when adding endpoints, the route file in `src/routes/<area>/` is the single place where auth is declared.
+The complete endpoint documentation (payloads, responses, gotchas) is in the [REST API Reference](API_REFERENCE.md). Role checks are middleware (`AuthController.roleAuthorization([...])`) on each route — when adding endpoints, the route file in `src/routes/<area>/` is the single place where auth is declared.
 
 ### Socket.IO (UI ↔ server ↔ VE)
 
@@ -152,11 +152,12 @@ A minimal real-world-game dev loop needs only steps 1–2.
 ## Related documents
 
 - [Researcher Overview](PLATFORM_OVERVIEW.md) — the platform from the study leader's perspective (study lifecycle, recorded data, exports)
+- [REST API Reference](API_REFERENCE.md) — every HTTP endpoint (auth, payloads, responses)
 - [Socket.IO Event Reference](SOCKETIO_REFERENCE.md) — the full real-time contract (events, payloads, rooms)
 - [Track Data Reference](TRACK_DATA_REFERENCE.md) — the track JSON format, field by field
 - [Glossary](GLOSSARY.md) — domain vocabulary (games, tasks, tracks, map settings, …)
 - Component READMEs: [UI](https://github.com/geogami-team/geogami) · [server](https://github.com/geogami-team/origami-backend) · [dashboard](https://github.com/geogami-team/geogami-dashboard) · [virtual environment](https://github.com/geogami-team/geogami-virtual-environment-dev)
-- Planned (see [README](README.md)): full REST API reference
+- Planned (see [README](README.md)): study-leader how-to guides
 
 ---
 
