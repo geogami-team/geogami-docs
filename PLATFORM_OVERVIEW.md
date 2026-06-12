@@ -146,6 +146,7 @@ Because both environments share the same task catalogue and data format, you can
 ## Related documents
 
 - [Glossary](GLOSSARY.md) — definitions of all platform terms (game, task, track, …)
+- How-to guides: [create a game](HOWTO_CREATE_A_GAME.md) · [run a virtual session](HOWTO_RUN_A_VIRTUAL_SESSION.md) · [export & analyze tracks](HOWTO_ANALYZE_TRACKS.md)
 - [Dashboard User Guide](https://github.com/geogami-team/geogami-dashboard/blob/HEAD/docs/USER_GUIDE.md) — step-by-step guide to the analysis tabs
 - [Task types and map features](https://github.com/geogami-team/geogami#map-features-and-task-types-in-geogami) — the full catalogue of tasks, question/answer types, and map settings
 - Component READMEs for setup and deployment: [app](https://github.com/geogami-team/geogami) · [server](https://github.com/geogami-team/origami-backend) · [dashboard](https://github.com/geogami-team/geogami-dashboard) · [virtual environment](https://github.com/geogami-team/geogami-virtual-environment-dev)
