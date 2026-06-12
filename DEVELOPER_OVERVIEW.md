@@ -97,6 +97,8 @@ The full endpoint tables are in the [server README](https://github.com/geogami-t
 
 ### Socket.IO (UI ↔ server ↔ VE)
 
+The most important events are summarized below; the complete contract (all events, payloads, rooms model, sequence diagram) is in the [Socket.IO Event Reference](SOCKETIO_REFERENCE.md).
+
 | Event | Direction | Purpose |
 |---|---|---|
 | `joinGame` / `newGame` | UI → server | Real-world multiplayer rooms and lifecycle |
@@ -150,9 +152,11 @@ A minimal real-world-game dev loop needs only steps 1–2.
 ## Related documents
 
 - [Researcher Overview](PLATFORM_OVERVIEW.md) — the platform from the study leader's perspective (study lifecycle, recorded data, exports)
+- [Socket.IO Event Reference](SOCKETIO_REFERENCE.md) — the full real-time contract (events, payloads, rooms)
+- [Track Data Reference](TRACK_DATA_REFERENCE.md) — the track JSON format, field by field
 - [Glossary](GLOSSARY.md) — domain vocabulary (games, tasks, tracks, map settings, …)
 - Component READMEs: [UI](https://github.com/geogami-team/geogami) · [server](https://github.com/geogami-team/origami-backend) · [dashboard](https://github.com/geogami-team/geogami-dashboard) · [virtual environment](https://github.com/geogami-team/geogami-virtual-environment-dev)
-- Planned (see [README](README.md)): full REST API reference, Socket.IO event reference, track JSON data-model reference
+- Planned (see [README](README.md)): full REST API reference
 
 ---
 
