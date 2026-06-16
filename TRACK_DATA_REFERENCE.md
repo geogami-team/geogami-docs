@@ -52,6 +52,8 @@ A **track** is the complete recording of one participant's play-through of a gam
   "players": ["Girls power !!!!!"],      // player name(s) entered at game start
   "playersCount": 1,
   "isMultiplayerGame": true,             // only present for multiplayer tracks
+  "instructor": "610bbc83a9fca4001cea4eaa", // user id of the class-QR instructor; null for normal plays
+  "sharedWith": [],                      // emails this track was individually shared with
   "createdAt": "...", "updatedAt": "...",// server-side timestamps
   "__v": 0                               // MongoDB internal, ignore
 }

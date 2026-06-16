@@ -89,13 +89,13 @@ POST /user/login
 | GET | `/game/allmultiplayer` | public | — | Multiplayer games |
 | GET | `/game/allwithlocs` | public | — | Games with their locations (map overview) |
 | GET | `/game/:id` | public | — | One full game definition (tasks, settings) |
-| GET | `/game/usergames` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Games the caller can **evaluate**: games they created + games shared with them (matched by email in `sharedWith`), only those with ≥ 1 track. Used by the dashboard |
+| GET | `/game/usergames` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Games the caller can **evaluate**: games they created, games shared with them (email in `sharedWith`), games they **instruct** (a track's `instructor` is them), or games with a track **shared** with them — only those with ≥ 1 *visible* track. Used by the dashboard |
 | POST | `/game/` | JWT | full game definition | Created game |
 | PUT | `/game/` | JWT — owner or `admin`/`contentAdmin` | game incl. `_id` | Updated game; `405` if not owner/admin |
 | PUT | `/game/delete/:id` | JWT — owner or `admin`/`contentAdmin` | — | **Soft delete**: sets `isVisible: false` (data and tracks remain; the game disappears from lists) |
-| POST | `/game/:id/share` | JWT — creator or `admin`/`contentAdmin` | `{emails: ["a@b.c", …]}` | Grants track access; rejects the owner's own email and unregistered addresses |
-| DELETE | `/game/:id/share` | JWT — creator or `admin`/`contentAdmin` | `{emails: [...]}` | Revokes access |
-| GET | `/game/:id/share` | JWT — creator or `admin`/`contentAdmin` | — | Current list of shared-with emails |
+| POST | `/game/:id/share` | JWT — creator or `admin` | `{emails: ["a@b.c", …]}` | Grants track access; rejects the owner's own email and unregistered addresses |
+| DELETE | `/game/:id/share` | JWT — creator or `admin` | `{emails: [...]}` | Revokes access |
+| GET | `/game/:id/share` | JWT — creator or `admin` | — | Current list of shared-with emails |
 
 > Route-ordering note (for contributors): `/game/:id` is a wildcard and is registered **last**; new specific routes must be added before it.
 
@@ -106,14 +106,32 @@ The JSON structure of tracks is documented field by field in the [Track Data Ref
 | Method | Path | Auth | Body / params | Returns |
 |---|---|---|---|---|
 | GET | `/track/all` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | All tracks |
-| GET | `/track/gametracks/:id` | JWT + roles(same) | game id | All tracks of one game (dashboard's session list) |
-| GET | `/track/:id` | JWT + roles(same) | track id | One full track |
+| GET | `/track/gametracks/:id` | JWT + roles(same) | game id | Tracks of one game the caller may see (dashboard's session list). Scoped per caller — see *Track access* below |
+| GET | `/track/:id` | JWT + roles(same) | track id | One full track, if the caller may see it (see *Track access* below) |
 | GET | `/track/waypoints/:id` | JWT + roles(same) | track id | Only the track's waypoints |
 | GET | `/track/waypointswithevents/:id` | JWT + roles(same) | track id | Waypoints + events |
-| POST | `/track/` | **none** ⚠️ | full track document (`game` must be a valid game id) | `201 {message, content: <saved track>}` |
+| POST | `/track/` | **none** ⚠️ | full track document (`game` must be a valid game id; optional `instructor` = a real user id for class plays) | `201 {message, content: <saved track>}`; `400` if `instructor` is present but not a real user |
 | PUT | `/track/` | **none** ⚠️ | `{_id, playerNo, waypoints, events, players, device}` | Multiplayer: writes the player's data into slot `playerNo − 1` of the shared track |
+| POST | `/track/:id/share` | JWT — track owner or `admin` | `{emails: [...]}` | Shares one track; owner = the track's `instructor`, else its game's creator |
+| DELETE | `/track/:id/share` | JWT — track owner or `admin` | `{emails: [...]}` | Revokes a track share |
+| GET | `/track/:id/share` | JWT — track owner or `admin` | — | Current list of shared-with emails |
 
 > ⚠️ `POST /track` and `PUT /track` have **no auth middleware** — any client can submit or modify (multiplayer) tracks. The UI does send its JWT, but the server doesn't check it. See [gotchas](#conventions-and-gotchas).
+
+> Route-ordering note (for contributors): the `/track/:id/share` routes are registered **before** the `/track/:id` wildcard.
+
+### Track access (class sharing)
+
+A track started from an instructor's **class QR** carries an `instructor` (the sharing user's id); such *class tracks* belong to that instructor, not the game creator. A per-track `sharedWith` (emails) grants extra viewers. The read endpoints above resolve visibility as:
+
+| Caller | Sees |
+|---|---|
+| full `admin` | every track |
+| game creator / game-share recipient | only non-class tracks (no `instructor`) |
+| instructor | only tracks where `instructor` is them |
+| per-track share recipient | only tracks listing them in `sharedWith` |
+
+`contentAdmin` has **no** special track visibility — it is treated like any other user (owner-based access only). Indexes on `Track.instructor` and `Track.sharedWith` back these lookups.
 
 ## `/file` — media upload & download
 
