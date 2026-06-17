@@ -127,7 +127,7 @@ Events are discrete actions. Every event shares a common envelope — the same `
 |---|---|---|
 | `INIT_GAME` | Once, when the game starts | — |
 | `INIT_TASK` | Each time a new task is shown — **use these to segment the track into tasks** | — |
-| `ON_MAP_CLICKED` | Player tapped the map | `clickPosition` (`latitude`/`longitude`), `clickDirection`, `map` (map type) |
+| `ON_MAP_CLICKED` | Player tapped the map — **not** emitted for free `DRAW` tasks (see the [`DRAW` note](#free-drawing-draw)) | `clickPosition` (`latitude`/`longitude`), `clickDirection`, `map` (map type) |
 | `ON_OK_CLICKED` | Player submitted an answer with the OK button | `correct` (boolean), `answer` (shape depends on the task's answer type — see below) |
 | `PHOTO_SELECTED` | Player chose a photo in a multiple-choice photo task | `answer`, `correct` |
 | `MULTIPLE_CHOICE_SELECTED` | Player chose a text option | `answer`, `correct` |
@@ -150,8 +150,38 @@ The `answer` object depends on the task's **answer type** (`task.answer.type`):
 | `NUMBER` | `numberInput` | Equals the task's stored solution |
 | `TEXT` | `text` | Always `true` if non-empty (free text is not auto-scored) |
 | `PHOTO` | `photo` (URL of the uploaded image on the GeoGami server) | Always `true` if a photo was taken (manual scoring) |
+| `DRAW` | `drawing` — a GeoJSON `FeatureCollection` of what the player drew (see [below](#free-drawing-draw)) | Always `true` (free drawing is not auto-scored) |
 
 A failed/empty submission is still logged (`correct: false` with `undefined`/`null` payload fields), and with `multipleTries` enabled a single task can have several `ON_OK_CLICKED` events — usually you want the **last** one per task, or all of them if you study error patterns.
+
+### Free drawing (`DRAW`)
+
+In a free task where the player draws on the map (`task.type` is `"free"`, `task.answer.type` is `DRAW`), the **final drawing** is stored on the `ON_OK_CLICKED` event as `answer.drawing` — a standard GeoJSON `FeatureCollection`:
+
+```jsonc
+{
+  "correct": true,
+  "drawing": {
+    "type": "FeatureCollection",
+    "features": [
+      { "type": "Feature", "properties": {},
+        "geometry": { "type": "Point", "coordinates": [7.5961, 51.9694] } },
+      { "type": "Feature", "properties": {},
+        "geometry": { "type": "LineString",
+          "coordinates": [[7.596, 51.969], [7.597, 51.970]] } },
+      { "type": "Feature", "properties": {},
+        "geometry": { "type": "Polygon",
+          "coordinates": [[[7.596, 51.969], /* … */ , [7.596, 51.969]]] } }
+    ]
+  }
+}
+```
+
+- Read each feature's `geometry.type` (`Point`, `LineString`, or `Polygon`) to know **what** the player drew. If the task's `settings.drawPointOnly` is `true`, only `Point` features can appear.
+- It is the **final** geometry: shapes or vertices the player added and then deleted/edited are **not** included — the payload is the drawing tool's end state, not a click log.
+- `correct` is always `true` (free drawings are not auto-scored). An OK pressed with nothing drawn logs an empty `features` array and does not advance the task.
+
+> ⚠️ **Tracks recorded before mid-2026** do not contain `answer.drawing`. Back then a drawing existed only as a stream of `ON_MAP_CLICKED` events (one per tap) on the DRAW task — with no final geometry, no geometry type, and including taps the player had since deleted. To reconstruct such a drawing you must connect those `clickPosition` points yourself and accept that deletions are not reflected. From mid-2026 on, DRAW tasks emit **no** `ON_MAP_CLICKED` events; read the drawing from `answer.drawing` instead.
 
 ## The `task` snapshot inside events
 
@@ -203,6 +233,7 @@ Useful for filtering (e.g. exclude simulator runs via `isVirtual`) and for repor
 - `interaction.zoomCount` may be fractional (the app halves the raw counter to compensate for double-fired zoom events).
 - The rotation counter is `rotation` in waypoints but `rotationCount` in events; it accumulates only heading changes larger than 15°.
 - Direction correctness uses a fixed ±30° threshold; position correctness uses the task's `settings.accuracy` (default 10 m) — relevant when comparing error magnitudes to the `correct` flag.
+- Free `DRAW` drawings: tracks from mid-2026 on store the final shape as a GeoJSON `FeatureCollection` in the OK event's `answer.drawing` (and emit no `ON_MAP_CLICKED` for DRAW tasks); older tracks have only the per-tap `ON_MAP_CLICKED` stream, with deletions not reflected and no geometry type. See [Free drawing](#free-drawing-draw).
 - Tracks of aborted games may lack `FINISHED_GAME` and `end` may equal the moment the app gave up, not a task completion.
 
 ---
