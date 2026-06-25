@@ -85,13 +85,15 @@ POST /user/login
 
 | Method | Path | Auth | Body / params | Returns |
 |---|---|---|---|---|
-| GET | `/game/all` | public | — | All games (public game list) |
-| GET | `/game/allmultiplayer` | public | — | Multiplayer games |
-| GET | `/game/allwithlocs` | public | — | Games with their locations (map overview) |
+| GET | `/game/all` | public | — | **Published** games only (public game list). Drafts excluded |
+| GET | `/game/allmultiplayer` | public | — | **Published** multiplayer games |
+| GET | `/game/allwithlocs` | public | — | **Published** games with their locations (map overview) |
+| GET | `/game/drafts` | JWT | — | **Draft** (unpublished) games visible to the caller: `admin`/`contentAdmin` get *every* draft (Drafts tab); any other user gets *their own* drafts (My Games + draft badge) |
 | GET | `/game/:id` | public | — | One full game definition (tasks, settings) |
-| GET | `/game/usergames` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Games the caller can **evaluate**: games they created, games shared with them (email in `sharedWith`), games they **instruct** (a track's `instructor` is them), or games with a track **shared** with them — only those with ≥ 1 *visible* track. Used by the dashboard |
-| POST | `/game/` | JWT | full game definition | Created game |
+| GET | `/game/usergames` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Games the caller can **evaluate**: games they created, games shared with them (email in `sharedWith`), games they **instruct** (a track's `instructor` is them), or games with a track **shared** with them — only those with ≥ 1 *visible* track. **Not filtered by publish state** (drafts can be evaluated/shared). Used by the dashboard |
+| POST | `/game/` | JWT | full game definition | Created game. The app saves new games as drafts (`isPublished: false`) |
 | PUT | `/game/` | JWT — owner or `admin`/`contentAdmin` | game incl. `_id` | Updated game; `405` if not owner/admin |
+| PUT | `/game/:id/publish` | JWT — owner or `admin`/`contentAdmin` | `{isPublished: true \| false}` | Publish a draft or move a published game back to draft; `405` if not owner/admin |
 | PUT | `/game/delete/:id` | JWT — owner or `admin`/`contentAdmin` | — | **Soft delete**: sets `isVisible: false` (data and tracks remain; the game disappears from lists) |
 | POST | `/game/:id/share` | JWT — creator or `admin` | `{emails: ["a@b.c", …]}` | Grants track access; rejects the owner's own email and unregistered addresses |
 | DELETE | `/game/:id/share` | JWT — creator or `admin` | `{emails: [...]}` | Revokes access |
@@ -155,6 +157,7 @@ Files are stored in MongoDB **GridFS**, sorted into buckets by MIME type (`photo
 - **Mixed error styles.** Older handlers use the legacy `res.send(status, body)` form and some auth failures return `200` with `{success: false}` rather than an error status (e.g. login with a non-string username). Don't rely on the status code alone — check the body.
 - **`405` means "not owner".** Game update/delete return `405` (Method Not Allowed) when the caller isn't the owner or an admin — semantically a `403`.
 - **Soft deletes.** `PUT /game/delete/:id` only hides the game (`isVisible: false`); tracks and the definition stay in the database.
+- **Draft vs. published (`isPublished`).** Public lists (`/game/all*`) only return *published* games. The creator publishes their own game via `PUT /game/:id/publish` — there is no admin curation step. The flag has three states: missing → **published** (legacy games, so no migration was needed), `true` → **published**, `false` → **draft** (only set on games created after this feature shipped). `isVisible` (soft-delete) is orthogonal. Sharing and evaluation (`/game/usergames`, `/game/:id/share`) ignore publish state, so a draft can be shared and played via a share link before it is published.
 - **Nested reset payload.** `POST /user/request-password-reset` expects `{email: {email: "..."}}`, not a flat field.
 - **Unauthenticated writes.** `POST /track`, `PUT /track`, and `POST /file/upload` enforce no authentication (tracked as a known issue). Anything else that mutates data requires a JWT.
 - **Public game definitions.** `GET /game/:id` and the `/game/all*` lists are public by design (games are playable without an account); only *track* data is role-protected.

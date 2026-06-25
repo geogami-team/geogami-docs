@@ -45,6 +45,8 @@ A game is an ordered sequence of tasks; participants play them in order. For eac
 2. **Save** the game, then **play it through yourself** end to end — check task order, texts, target tolerances, and that the last task ends the game cleanly (the track uploads at the end).
 3. For virtual games, also pilot once on the actual study hardware (performance differs between laptops, tablets, and headsets).
 
+The game is saved as a **draft** — only you (and content moderators) can see it, so you can pilot in peace. To collect pilot data you don't need to publish: **share** the draft from the dashboard and play it via the share link. When it's ready for the public, **publish** it from your game list (My games → *Publish*); it then shows up in the public *Published* list. You can unpublish it back to a draft at any time.
+
 ## Good to know
 
 - **Editing:** you can edit your games later (Edit game), but don't edit between participants of the same study — the task definition is snapshotted into each track, so mid-study edits create inconsistent data.

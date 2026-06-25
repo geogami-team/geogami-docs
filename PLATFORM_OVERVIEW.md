@@ -78,6 +78,8 @@ In the app's **game creator** you build a game as a sequence of **tasks**. Two t
 
 Each task also carries **map settings** — these are your experimental controls. You decide per task whether the map can rotate, whether the participant's position is shown, whether the map is satellite/standard/blank, whether information is reduced, whether only a buffer around the participant is revealed, and so on. The same game logic works in real-world and virtual environments, in single-player and multiplayer mode.
 
+A new game is saved as a **draft**: it is visible only to you (in *My games*, with a draft badge) and to content moderators, so unfinished and pilot games stay out of the public list. When it is ready, you **publish** it from your game list — it then appears in the public *Published* list for all players. You can move it back to a draft at any time. You don't have to publish to collect data: a draft can be **shared** and played via a share link while you pilot it (see [Accounts, roles, and data access](#accounts-roles-and-data-access)).
+
 ### 2. Run — participants play
 
 - **Real-world game:** the participant opens the game in the app on a phone and plays outdoors; GPS and compass drive position and heading.
