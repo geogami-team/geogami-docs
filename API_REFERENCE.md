@@ -92,12 +92,15 @@ POST /user/login
 | GET | `/game/:id` | public | — | One full game definition (tasks, settings) |
 | GET | `/game/usergames` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Games the caller can **evaluate**: games they created, games shared with them (email in `sharedWith`), games they **instruct** (a track's `instructor` is them), or games with a track **shared** with them — only those with ≥ 1 *visible* track. **Not filtered by publish state** (drafts can be evaluated/shared). Used by the dashboard |
 | POST | `/game/` | JWT | full game definition | Created game. The app saves new games as drafts (`isPublished: false`) |
-| PUT | `/game/` | JWT — owner or `admin` | game incl. `_id` | Updated game; `405` if not owner/admin|
-| PUT | `/game/:id/publish` | JWT — owner or `admin` | `{isPublished: true \| false}` | Publish a draft or move a published game back to draft; `405` if not owner/admin |
-| PUT | `/game/delete/:id` | JWT — owner or `admin`/`contentAdmin` | — | **Soft delete**: sets `isVisible: false` (data and tracks remain; the game disappears from lists) |
-| POST | `/game/:id/share` | JWT — creator or `admin` | `{emails: ["a@b.c", …]}` | Grants track access; rejects the owner's own email and unregistered addresses |
-| DELETE | `/game/:id/share` | JWT — creator or `admin` | `{emails: [...]}` | Revokes access |
-| GET | `/game/:id/share` | JWT — creator or `admin` | — | Current list of shared-with emails |
+| PUT | `/game/` | JWT — owner, co-author (`editors`), or `admin` | game incl. `_id` | Updated game; `405` if not authorized |
+| PUT | `/game/:id/publish` | JWT — owner, co-author (`editors`), or `admin` | `{isPublished: true \| false}` | Publish a draft or move a published game back to draft; `405` if not authorized |
+| PUT | `/game/delete/:id` | JWT — owner or `admin`/`contentAdmin` | — | **Soft delete**: sets `isVisible: false` (data and tracks remain; the game disappears from lists). Co-authors **cannot** delete |
+| POST | `/game/:id/share` | JWT — creator or `admin` | `{emails: ["a@b.c", …]}` | Grants **track** access; rejects the owner's own email and unregistered addresses |
+| DELETE | `/game/:id/share` | JWT — creator or `admin` | `{emails: [...]}` | Revokes track access |
+| GET | `/game/:id/share` | JWT — creator or `admin` | — | Current list of track-shared emails |
+| POST | `/game/:id/editors` | JWT — creator or `admin` | `{emails: ["a@b.c", …]}` | Adds **co-authors** (`editors`): may edit + publish + see tracks. Rejects owner/unregistered emails |
+| DELETE | `/game/:id/editors` | JWT — creator or `admin` | `{emails: [...]}` | Removes a co-author |
+| GET | `/game/:id/editors` | JWT — creator or `admin` | — | Current list of co-author emails |
 
 > Route-ordering note (for contributors): `/game/:id` is a wildcard and is registered **last**; new specific routes must be added before it.
 
