@@ -1,0 +1,10 @@
+# MkDocs build output
+site/
+
+# Python virtual environments
+.venv/
+venv/
+mkdocs-venv/
+
+# OS / editor cruft
+.DS_Store

@@ -157,7 +157,7 @@ A minimal real-world-game dev loop needs only steps 1–2.
 - [Track Data Reference](TRACK_DATA_REFERENCE.md) — the track JSON format, field by field
 - [Glossary](GLOSSARY.md) — domain vocabulary (games, tasks, tracks, map settings, …)
 - Component READMEs: [UI](https://github.com/geogami-team/geogami) · [server](https://github.com/geogami-team/origami-backend) · [dashboard](https://github.com/geogami-team/geogami-dashboard) · [virtual environment](https://github.com/geogami-team/geogami-virtual-environment-dev)
-- Planned (see [README](README.md)): study-leader how-to guides
+- Study-leader how-to guides: [create a game](HOWTO_CREATE_A_GAME.md) · [run a virtual session](HOWTO_RUN_A_VIRTUAL_SESSION.md) · [export & analyze tracks](HOWTO_ANALYZE_TRACKS.md)
 
 ---
 

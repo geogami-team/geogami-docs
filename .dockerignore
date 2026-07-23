@@ -1,0 +1,8 @@
+.git
+.github
+.venv
+venv
+mkdocs-venv
+site
+.DS_Store
+README.md

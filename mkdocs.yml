@@ -1,0 +1,92 @@
+site_name: GeoGami Documentation
+site_description: Platform documentation for GeoGami — the location-based spatial-cognition game platform.
+# Set this to the final URL the university server serves the docs at.
+# Only affects the canonical <link> and sitemap.xml — navigation uses relative
+# links, so the site works at any mount path regardless of this value.
+site_url: https://geogami.ifgi.de/docs/
+repo_url: https://github.com/geogami-team/geogami-docs
+repo_name: geogami-team/geogami-docs
+edit_uri: edit/main/docs/
+copyright: >-
+  © Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — MIT License
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+      # GitHub-compatible heading slugs so the hand-written tables of contents
+      # (which use GitHub-style anchors) resolve identically on the site and on GitHub.
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - For researchers:
+      - Platform Overview: PLATFORM_OVERVIEW.md
+      - Glossary: GLOSSARY.md
+      - "How-to: Create a game": HOWTO_CREATE_A_GAME.md
+      - "How-to: Run a virtual session": HOWTO_RUN_A_VIRTUAL_SESSION.md
+      - "How-to: Export & analyze tracks": HOWTO_ANALYZE_TRACKS.md
+  - For developers:
+      - Developer Overview: DEVELOPER_OVERVIEW.md
+      - REST API Reference: API_REFERENCE.md
+      - Socket.IO Event Reference: SOCKETIO_REFERENCE.md
+      - Track Data Reference: TRACK_DATA_REFERENCE.md
+
+extra:
+  social:
+    - icon: fontawesome/solid/globe
+      link: https://geogami.ifgi.de
+    - icon: fontawesome/brands/github
+      link: https://github.com/geogami-team
