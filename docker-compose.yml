@@ -1,0 +1,39 @@
+services:
+  docs:
+    # Static MkDocs site served by nginx. The image is rebuilt and pushed to
+    # GHCR on every push to main (see .github/workflows/registry-build-publish.yml).
+    image: ghcr.io/geogami-team/geogami-docs:latest
+
+    # For local testing you can build the image instead of pulling it:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+
+    container_name: geogami-docs
+    # platform: linux/amd64   # uncomment on Apple Silicon
+
+    ports:
+      # host:container — point the vhost reverse proxy (Apache/nginx) at the
+      # host port. Change 8080 if it clashes with another service.
+      - "8080:80"
+
+    restart: always
+
+    labels:
+      # Let Watchtower auto-pull & redeploy this container when a new image is
+      # pushed to GHCR — same mechanism as the backend/dashboard deployments.
+      - com.centurylinklabs.watchtower.enable=true
+
+# --- Alternative: containerized reverse proxy (jwilder/nginx-proxy) ---------
+# If your vhost is an nginx-proxy container rather than a host-level Apache/
+# nginx, drop the `ports:` block above and instead expose the domain like this:
+#
+#   environment:
+#     - VIRTUAL_HOST=docs.geogami.ifgi.de
+#     - VIRTUAL_PORT=80
+#   networks:
+#     - proxy
+#
+# networks:
+#   proxy:
+#     external: true
