@@ -3,7 +3,7 @@ site_description: Platform documentation for GeoGami — the location-based spat
 # Set this to the final URL the university server serves the docs at.
 # Only affects the canonical <link> and sitemap.xml — navigation uses relative
 # links, so the site works at any mount path regardless of this value.
-site_url: https://geogami.ifgi.de/docs/
+site_url: https://geogami.uni-muenster.de/docs/
 repo_url: https://github.com/geogami-team/geogami-docs
 repo_name: geogami-team/geogami-docs
 edit_uri: edit/main/docs/
@@ -87,6 +87,6 @@ nav:
 extra:
   social:
     - icon: fontawesome/solid/globe
-      link: https://geogami.ifgi.de
+      link: https://geogami.uni-muenster.de
     - icon: fontawesome/brands/github
       link: https://github.com/geogami-team

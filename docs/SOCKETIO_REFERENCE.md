@@ -148,4 +148,4 @@ All coordination state is held **in memory** in `src/index.js` — relevant when
 
 **Related:** [Developer Overview](DEVELOPER_OVERVIEW.md) · [Track Data Reference](TRACK_DATA_REFERENCE.md) (how the synced positions end up in track files) · server handlers: `src/index.js` in [origami-backend](https://github.com/geogami-team/origami-backend)
 
-**Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.ifgi.de>
+**Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.uni-muenster.de>

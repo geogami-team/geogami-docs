@@ -240,4 +240,4 @@ Useful for filtering (e.g. exclude simulator runs via `isVirtual`) and for repor
 
 **Related:** [Researcher Overview](PLATFORM_OVERVIEW.md) · [Glossary](GLOSSARY.md) · [Dashboard User Guide](https://github.com/geogami-team/geogami-dashboard/blob/HEAD/docs/USER_GUIDE.md)
 
-**Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.ifgi.de>
+**Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.uni-muenster.de>

@@ -169,4 +169,4 @@ Files are stored in MongoDB **GridFS**, sorted into buckets by MIME type (`photo
 
 **Related:** [Developer Overview](DEVELOPER_OVERVIEW.md) · [Socket.IO Event Reference](SOCKETIO_REFERENCE.md) · [Track Data Reference](TRACK_DATA_REFERENCE.md) · route sources: `src/routes/` in [origami-backend](https://github.com/geogami-team/origami-backend)
 
-**Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.ifgi.de>
+**Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.uni-muenster.de>
