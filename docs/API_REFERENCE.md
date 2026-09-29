@@ -110,11 +110,11 @@ The JSON structure of tracks is documented field by field in the [Track Data Ref
 
 | Method | Path | Auth | Body / params | Returns |
 |---|---|---|---|---|
-| GET | `/track/all` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | All tracks |
+| GET | `/track/all` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Every track the caller may see across all games (full `admin`: all tracks). Scoped per caller — see *Track access* below |
 | GET | `/track/gametracks/:id` | JWT + roles(same) | game id | Tracks of one game the caller may see (dashboard's session list). Scoped per caller — see *Track access* below |
 | GET | `/track/:id` | JWT + roles(same) | track id | One full track, if the caller may see it (see *Track access* below) |
-| GET | `/track/waypoints/:id` | JWT + roles(same) | track id | Only the track's waypoints |
-| GET | `/track/waypointswithevents/:id` | JWT + roles(same) | track id | Waypoints + events |
+| GET | `/track/waypoints/:id` | JWT + roles(same) | track id | Only the track's waypoints, if the caller may see the track (403 otherwise, 404 if unknown) |
+| GET | `/track/waypointswithevents/:id` | JWT + roles(same) | track id | Waypoints + events, if the caller may see the track (403 otherwise, 404 if unknown) |
 | POST | `/track/` | **none** ⚠️ | full track document (`game` must be a valid game id; optional `instructor` = a real user id for class plays) | `201 {message, content: <saved track>}`; `400` if `instructor` is present but not a real user |
 | PUT | `/track/` | **none** ⚠️ | `{_id, playerNo, waypoints, events, players, device}` | Multiplayer: writes the player's data into slot `playerNo − 1` of the shared track |
 | POST | `/track/:id/share` | JWT — track owner or `admin` | `{emails: [...]}` | Shares one track; owner = the track's `instructor`, else its game's creator |
