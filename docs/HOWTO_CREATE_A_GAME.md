@@ -39,6 +39,15 @@ A game is an ordered sequence of tasks; participants play them in order. For eac
 3. **Behaviour settings** — `feedback` (tell the participant if they were right), `multipleTries` (let them retry until correct), `confirmation` (require an explicit OK), `accuracy` (arrival tolerance in metres for position tasks; default 10 m). These directly shape what your answer data looks like — with `multipleTries` on, expect several answer events per task ([details](TRACK_DATA_REFERENCE.md#answer-payload-shapes-in-on_ok_clicked)).
 4. **Map settings** — your experimental controls: map type, rotation mode, position/direction markers, reduced information, buffer, landmark highlighting, … ([full list](GLOSSARY.md#map-settings-experimental-controls)). Every map setting is recorded into the track with each task, so your conditions are always reconstructible from the data.
 
+## Simple and Advanced view
+
+The editor opens in **Simple** view, which shows the essential tools. Use the **Simple / Advanced** switch at the top of a task dialog (and of the save screen) to reveal more options at any time; the (i) button next to it explains the two views. Your choice is remembered for your account on this server, and the same view is used in all dialogs of the game you are editing.
+
+- **Switching is only a change of view.** Nothing you typed, uploaded or selected is lost or reset, and settings that Simple hides keep their values and are saved unchanged.
+- **Advanced-only controls** (initially): navigation via text and exploration tasks, keeping the flag, arrival accuracy, most map settings (zoom, movement, rotation, map type, view-direction marker, track recording, street highlight, buffer, landmarks) and the *Map features* entry of thematic/information tasks, some free-task and direction-task options, several trials, the search area, the game boundary and the consent switch on the save screen, and some virtual-world settings (avatar start position and speed, environment settings, map size). Everything else is in both views.
+- **Existing games.** If a task or game uses a setting that Simple hides, a notice ("This task uses advanced settings") says so and offers **Review settings**, which switches to Advanced.
+- **Who decides.** The administrators of your GeoGami installation choose which optional controls Simple shows; see [How-to: Manage the editor views](HOWTO_MANAGE_THE_EDITOR_VIEWS.md). If you need a control that is not in Simple, switch to Advanced.
+
 ## 3. Name, save, pilot
 
 1. Give the game a **name** and **place**. The name appears in track files and exports — a systematic scheme (e.g. `StudyX-ConditionA`) pays off at analysis time.

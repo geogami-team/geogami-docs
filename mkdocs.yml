@@ -78,6 +78,8 @@ nav:
       - "How-to: Create a game": HOWTO_CREATE_A_GAME.md
       - "How-to: Run a virtual session": HOWTO_RUN_A_VIRTUAL_SESSION.md
       - "How-to: Export & analyze tracks": HOWTO_ANALYZE_TRACKS.md
+  - For administrators:
+      - "How-to: Manage the editor views": HOWTO_MANAGE_THE_EDITOR_VIEWS.md
   - For developers:
       - Developer Overview: DEVELOPER_OVERVIEW.md
       - REST API Reference: API_REFERENCE.md

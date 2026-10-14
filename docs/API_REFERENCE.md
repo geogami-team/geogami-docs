@@ -21,6 +21,8 @@ The API is served by Express on port **3000** (same server that hosts Socket.IO)
 - [`/track` — gameplay recordings](#track--gameplay-recordings)
 - [`/file` — media upload & download](#file--media-upload--download)
 - [`/appversion` — client version check](#appversion--client-version-check)
+- [`/editor-visibility` — Simple/Advanced policy](#editor-visibility--simpleadvanced-policy)
+- [`/audit` — audit log](#audit--audit-log)
 - [Conventions and gotchas](#conventions-and-gotchas)
 
 ---
@@ -155,6 +157,57 @@ Files are stored in MongoDB **GridFS**, sorted into buckets by MIME type (`photo
 |---|---|---|---|
 | GET | `/appversion/current` | public | `{message, content: <current version info>}` — used by clients to prompt for updates |
 
+## `/editor-visibility` — Simple/Advanced policy
+
+The game editor has a **Simple** and an **Advanced** view. One global policy decides which optional controls Simple shows (see [How-to: Manage the editor views](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)). It only affects what the editor displays — it never changes stored games or tasks.
+
+| Method | Path | Auth | Body / params | Returns |
+|---|---|---|---|---|
+| GET | `/editor-visibility` | JWT (any authenticated user) | — | The effective policy (below). Before the first save: the built-in defaults with `revision: 0`. Sent with `Cache-Control: no-store` |
+| PUT | `/editor-visibility` | JWT + roles(`admin`) | `{expectedRevision, features}` | The saved policy. `409` if `expectedRevision` is stale; `400` on invalid input; `401` for everyone but `admin` (a `contentAdmin` is refused) |
+
+```json
+{
+  "revision": 3,
+  "updatedAt": "2026-10-13T10:00:00.000Z",
+  "catalogue": "20f2dcdf",
+  "features": { "map.zoom": "both", "navigation.accuracy": "advanced", "…": "…" },
+  "updatedBy": "an-admin"
+}
+```
+
+- `features` maps every configurable control id to `"both"` (shown in Simple and Advanced) or `"advanced"` (Advanced only). Ids are stable keys such as `map.zoom`; ids not in the list are always shown.
+- `catalogue` is a short digest of the list of ids and defaults. The app compares it with its own copy and refuses to save when the two differ (app and server are on different versions).
+- `updatedBy` (the administrator's username) is only included for administrators.
+- **Writes.** `features` may list just the controls you change; unlisted controls keep their value. Unknown ids, always-shown (essential) ids, other values and extra fields are rejected with `400`; nothing is partially applied. A request that changes nothing returns `200` without a new revision.
+- **Optimistic concurrency.** Quote the revision you read in `expectedRevision`. If someone saved in between (or two first saves race), the answer is `409 {message, current}` where `current` is the policy now stored; reload it and re-apply your change. Only the differences from the defaults are stored.
+- Every successful write is recorded in the audit log (`editorVisibility.update`).
+
+## `/audit` — audit log
+
+All endpoints are **admin only** (full `admin`; a `contentAdmin` is refused).
+
+| Method | Path | Auth | Body / params | Returns |
+|---|---|---|---|---|
+| GET | `/audit` | JWT + roles(`admin`) | query: `limit` (≤ 200, default 50), `before` (ISO date cursor), `severity` (`info`\|`alert`) | `{items, hasMore}` — newest first |
+| GET | `/audit/unread-count` | JWT + roles(`admin`) | — | `{count, alertCount, lastSeenAt}` — entries newer than the caller's own "seen" mark |
+| POST | `/audit/seen` | JWT + roles(`admin`) | — | `{lastSeenAt}` — marks the caller as caught up |
+
+Entries are written by the server after the action succeeded and never block it. Each has `action`, `severity`, the actor (from the verified token), an optional target, `ip`, `userAgent` and a small `meta` object. Entries with severity `info` expire after 12 months; `alert` entries are kept.
+
+| `action` | Written when | `meta` |
+|---|---|---|
+| `account.create.self` | `POST /user/register` succeeded (actor = the new account) | — |
+| `account.create.admin` | `POST /user/user/` succeeded | `roles` |
+| `account.delete.self` / `account.delete.admin` | An account was deleted | `email` (admin delete) |
+| `account.password.change` / `account.password.reset` | A password was changed / reset | — |
+| `account.email.change` | An email change was requested | `from`, `to` |
+| `user.role.change` | `PUT /user/update-role` | `from`, `to` |
+| `game.create` | `POST /game` succeeded | `gameId`, `name`, `tasks` |
+| `game.update` | `PUT /game` changed something | `gameId`, `name`, `changedFields` — field **names** only; saves that change nothing write no entry |
+| `editorVisibility.update` | `PUT /editor-visibility` changed something | `fromRevision`, `toRevision`, `changes` (`{id, from, to}`) |
+| `security.rateLimit` (severity `alert`) | A rate limiter blocked a request | `endpoint`, … |
+
 ## Conventions and gotchas
 
 - **Mixed error styles.** Older handlers use the legacy `res.send(status, body)` form and some auth failures return `200` with `{success: false}` rather than an error status (e.g. login with a non-string username). Don't rely on the status code alone — check the body.
@@ -163,6 +216,7 @@ Files are stored in MongoDB **GridFS**, sorted into buckets by MIME type (`photo
 - **Draft vs. published (`isPublished`).** Public lists (`/game/all*`) only return *published* games. The creator publishes their own game via `PUT /game/:id/publish` — there is no admin curation step. The flag has three states: missing → **published** (legacy games, so no migration was needed), `true` → **published**, `false` → **draft** (only set on games created after this feature shipped). `isVisible` (soft-delete) is orthogonal. Sharing and evaluation (`/game/usergames`, `/game/:id/share`) ignore publish state, so a draft can be shared and played via a share link before it is published.
 - **Nested reset payload.** `POST /user/request-password-reset` expects `{email: {email: "..."}}`, not a flat field.
 - **Unauthenticated writes.** `POST /track`, `PUT /track`, and `POST /file/upload` enforce no authentication (tracked as a known issue). Anything else that mutates data requires a JWT.
+- **Audit trail.** Account creation, game creation and game edits (as well as deletions, password/email/role changes and editor-visibility changes) leave an [audit entry](#audit--audit-log); `game.update` lists which fields changed, never their values.
 - **Public game definitions.** `GET /game/:id` and the `/game/all*` lists are public by design (games are playable without an account); only *track* data is role-protected.
 
 ---

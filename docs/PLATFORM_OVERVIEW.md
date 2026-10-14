@@ -78,6 +78,8 @@ In the app's **game creator** you build a game as a sequence of **tasks**. Two t
 
 Each task also carries **map settings** — these are your experimental controls. You decide per task whether the map can rotate, whether the participant's position is shown, whether the map is satellite/standard/blank, whether information is reduced, whether only a buffer around the participant is revealed, and so on. The same game logic works in real-world and virtual environments, in single-player and multiplayer mode.
 
+The editor opens in a **Simple** view that shows the essential tools; authors switch to **Advanced** whenever they need more options (see [Simple and Advanced view](HOWTO_CREATE_A_GAME.md#simple-and-advanced-view)).
+
 A new game is saved as a **draft**: it is visible only to you (in *My games*, with a draft badge) and to content moderators, so unfinished and pilot games stay out of the public list. When it is ready, you **publish** it from your game list — it then appears in the public *Published* list for all players. You can move it back to a draft at any time. You don't have to publish to collect data: a draft can be **shared** and played via a share link while you pilot it (see [Accounts, roles, and data access](#accounts-roles-and-data-access)).
 
 ### 2. Run — participants play
@@ -143,6 +145,7 @@ Because both environments share the same task catalogue and data format, you can
 
 - **Anyone with a verified GeoGami account** can create and play games.
 - **Viewing recorded tracks** (the evaluate section and the dashboard) additionally requires an elevated role — typically **`scholar`** for researchers. Roles are assigned by an administrator; contact the GeoGami team (geogami(at)uni-muenster.de) to have your account upgraded.
+- **Administrators** (`admin`) have an **App management** page for user accounts, the Simple/Advanced editor configuration and the audit log ([guide](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)).
 - **You see your own games' tracks.** To collaborate, the game creator can **share** a game's tracks with other registered GeoGami users by email, directly from the dashboard sidebar; shared games then appear in the recipients' dashboards. Sharing can be revoked at any time by the creator.
 
 ## Related documents

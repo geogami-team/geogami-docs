@@ -15,6 +15,10 @@ How-to guides for the study workflow:
 2. **[Run a virtual study session](HOWTO_RUN_A_VIRTUAL_SESSION.md)** — session checklist, multiplayer, VR headsets, remote participants, troubleshooting.
 3. **[Export and analyze track data](HOWTO_ANALYZE_TRACKS.md)** — from dashboard download to tidy data frames, with R and Python starters.
 
+## For administrators
+
+- **[Manage the editor views](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)** — choose which controls the Simple editor view shows, use the App management page, and read the audit log.
+
 ## For developers
 
 - **[Developer Overview](DEVELOPER_OVERVIEW.md)** — system architecture, REST and Socket.IO contracts, data model, and how to run the full stack locally. **Start here.**

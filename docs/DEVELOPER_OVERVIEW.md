@@ -90,10 +90,16 @@ Route areas, all rooted at the server origin:
 | `/user/*` | Register, login, token refresh, email verification, password reset, profile, admin user management | Public for auth flows; JWT for profile; `admin`/`contentAdmin` for management |
 | `/game/*` | Game CRUD, public game lists, share/unshare game tracks | `GET /game/all` public; create/update with JWT; `usergames` needs an elevated role |
 | `/track/*` | Store tracks during play, fetch tracks/waypoints for evaluation | Reads require `admin`/`contentAdmin`/`trackAccess`/`scholar`; writes (`POST`/`PUT /track`) are called by the player client |
+| `/editor-visibility` | Global Simple/Advanced editor policy (read by every editor, written by admins) | `GET` JWT; `PUT` `admin` |
+| `/audit/*` | Audit log (accounts, games, admin changes, security alerts) | `admin` |
 | `/file/*` | Photo/file upload | JWT |
 | `/appversion/*` | Client version checks | Public |
 
 The complete endpoint documentation (payloads, responses, gotchas) is in the [REST API Reference](API_REFERENCE.md). Role checks are middleware (`AuthController.roleAuthorization([...])`) on each route — when adding endpoints, the route file in `src/routes/<area>/` is the single place where auth is declared.
+
+### Editor visibility contract (UI ↔ server)
+
+The list of controls that take part in Simple/Advanced (stable ids, default classification, and the *always shown* ids) is a JSON file kept **identical in both repositories**: `src/app/models/editor-visibility.contract.json` in the UI and `src/helpers/editorVisibilityContract.json` in the server. Both test suites pin its digest, and the server test compares the two copies when the repositories are checked out side by side. Change ids or defaults in both repositories together, and never reuse or rename an id that has shipped. **Roll out the server first**: a UI deployed before the server falls back to its cached policy, then to the built-in defaults.
 
 ### Socket.IO (UI ↔ server ↔ VE)
 
@@ -144,7 +150,8 @@ A minimal real-world-game dev loop needs only steps 1–2.
 
 - **Branches:** in the UI repo, branch from `dev`; PRs target `master`. Check each repo's README for its own flow.
 - **Database migrations:** `migrate-mongo` in origami-backend (`npx migrate-mongo create/status/up`); config in `migrate-mongo-config.js`.
-- **i18n (UI):** translation files at `src/assets/i18n/<locale>.json` (`en`, `de`, `fr`, `pt`, `ar`); all user-facing strings go through `| translate`.
+- **i18n (UI):** translation files at `src/assets/i18n/<locale>.json` (`en`, `de`, `fr`, `pt`, `ar`, `it`); all user-facing strings go through `| translate`.
+- **Tests (server):** `npm test` runs the `node:test` suite. The HTTP-level tests start a throwaway MongoDB on loopback (Docker `mongo:7`, or any loopback `TEST_MONGO_URI`) and never read `.env` or touch real data; they are skipped when neither is available.
 - **Linting/tests (UI):** run `npm run lint` and the Karma tests before pushing.
 - **VE releases:** built manually from Unity and published as tagged GitHub releases (WebGL, macOS, Windows).
 - **License:** MIT across all repositories.
