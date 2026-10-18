@@ -17,7 +17,7 @@ How-to guides for the study workflow:
 
 ## For administrators
 
-- **[Manage the editor views](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)** — choose which controls the Simple editor view shows, use the App management page, and read the audit log.
+- **[Manage the editor views](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)** — choose which controls the Simple editor view shows, use the App management page, ask app users to update, and read the audit log.
 
 ## For developers
 

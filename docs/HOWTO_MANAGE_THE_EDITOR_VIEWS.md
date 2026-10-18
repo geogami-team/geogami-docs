@@ -17,12 +17,13 @@ Only accounts with the **`admin`** role. A `contentAdmin` can neither open these
 
 ## App management
 
-Administrators see an **App management** card on the app's start page. It opens a page with three tools:
+Administrators see an **App management** card on the app's start page. It opens a page with four tools:
 
 | Tool | What it is for |
 |---|---|
 | **Users** | List, create, edit and delete accounts; change roles. |
 | **Editor visibility** | Choose which optional controls the Simple view shows (this guide). |
+| **App updates** | Ask iOS and Android users to update the app: see [App updates](#app-updates). |
 | **Audit log** | Who did what: see [The audit log](#the-audit-log). A number on the card and on this tool counts the entries you have not read yet. |
 
 ## Editor visibility
@@ -56,6 +57,27 @@ Everything not listed here is shown in Simple. These are **Advanced only** until
 - **Two administrators at once.** If someone else saved while you were editing, your save is refused and the page tells you. *Reload latest version* loads their configuration and applies your own changes on top of it; then save again.
 - **If the server cannot be reached,** the editor carries on with the last configuration it knew, or the built-in defaults. Advanced is always available.
 
+## App updates
+
+The iOS and Android apps check, every time they start, whether they are older than the version set here. If they are, they show an update prompt with a button to the App Store or Google Play. The web app is not affected.
+
+1. Open **App management → App updates**. The page shows the stored settings and who saved them last.
+2. Set the fields:
+   - **Show the update prompt** — the master switch. Off: no device is asked, whatever the other fields say.
+   - **Ask iOS devices** / **Ask Android devices** — which platforms get the prompt.
+   - **Latest version** — three numbers, for example `6.2.0` (each at most 999). Devices on an *older* version are asked. The newest release on GitHub is shown as a hint.
+   - **Important update** — the prompt has no *Not now* button.
+   - **Build number** — kept for reference; the apps do not compare it.
+3. **What devices will see** says in one sentence which devices are asked and shows the prompt as the apps display it (in your language; each device uses its own).
+4. Press **Save**. Saving an important update asks for confirmation first.
+
+!!! warning
+    Only enter a version that can **already be downloaded** from the store. With *Important update* on, devices below that version see a prompt without *Not now* each time the app starts.
+
+- **When it applies:** the next time someone opens the app (not while it is already running).
+- **Two administrators at once:** handled as for Editor visibility: the second save is refused, and *Reload latest version* applies your changes on top of the newer settings.
+- The same setting is used for both platforms; iOS and Android cannot have different version numbers.
+
 ## The audit log
 
 The audit log (admin only) records sensitive and administrative actions. Entries show the time, who did it, who or what it concerned, a short summary and the IP address. They are kept for 12 months (security alerts are kept indefinitely).
@@ -70,6 +92,7 @@ The audit log (admin only) records sensitive and administrative actions. Entries
 | Game created | An author saves a new game (name and number of tasks). |
 | Game edited | A save changed a game; the entry names the **fields** that changed (for example `name`, `tasks`), never their content. A save that changes nothing leaves no entry. |
 | Editor visibility changed | An administrator saved a new configuration (each control: old → new). |
+| App update prompt changed | An administrator saved the App updates settings (each field: old → new). |
 | Rate limit reached | A security alert: too many requests to a protected endpoint. |
 
 !!! note
@@ -77,6 +100,6 @@ The audit log (admin only) records sensitive and administrative actions. Entries
 
 ---
 
-**Related:** [REST API Reference — `/editor-visibility` and `/audit`](API_REFERENCE.md#editor-visibility--simpleadvanced-policy) · [Developer Overview](DEVELOPER_OVERVIEW.md)
+**Related:** [REST API Reference — `/editor-visibility`, `/appversion` and `/audit`](API_REFERENCE.md#editor-visibility--simpleadvanced-policy) · [Developer Overview](DEVELOPER_OVERVIEW.md)
 
 **Contact:** Spatial Intelligence Lab (SIL), Institute for Geoinformatics, University of Münster — geogami(at)uni-muenster.de — <https://geogami.uni-muenster.de>

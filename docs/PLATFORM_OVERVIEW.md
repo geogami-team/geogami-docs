@@ -145,7 +145,7 @@ Because both environments share the same task catalogue and data format, you can
 
 - **Anyone with a verified GeoGami account** can create and play games.
 - **Viewing recorded tracks** (the evaluate section and the dashboard) additionally requires an elevated role — typically **`scholar`** for researchers. Roles are assigned by an administrator; contact the GeoGami team (geogami(at)uni-muenster.de) to have your account upgraded.
-- **Administrators** (`admin`) have an **App management** page for user accounts, the Simple/Advanced editor configuration and the audit log ([guide](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)).
+- **Administrators** (`admin`) have an **App management** page for user accounts, the Simple/Advanced editor configuration, the update prompt of the iOS and Android apps and the audit log ([guide](HOWTO_MANAGE_THE_EDITOR_VIEWS.md)).
 - **You see your own games' tracks.** To collaborate, the game creator can **share** a game's tracks with other registered GeoGami users by email, directly from the dashboard sidebar; shared games then appear in the recipients' dashboards. Sharing can be revoked at any time by the creator.
 
 ## Related documents

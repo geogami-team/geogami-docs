@@ -153,9 +153,33 @@ Files are stored in MongoDB **GridFS**, sorted into buckets by MIME type (`photo
 
 ## `/appversion` — client version check
 
-| Method | Path | Auth | Returns |
-|---|---|---|---|
-| GET | `/appversion/current` | public | `{message, content: <current version info>}` — used by clients to prompt for updates |
+One document drives the update prompt of the iOS and Android apps. The apps read it from `/appversion/current` at every start; administrators edit it on **App management → App updates** ([how-to](HOWTO_MANAGE_THE_EDITOR_VIEWS.md#app-updates)).
+
+| Method | Path | Auth | Body / params | Returns |
+|---|---|---|---|---|
+| GET | `/appversion/current` | public | — | `{message, content}` — the stored document (below) without `updatedBy`. Read by the apps |
+| GET | `/appversion/github-latest` | public | — | `{message, content: {version}}` — latest GitHub release tag without the `v` (cached 1 h); shown as the web app's version |
+| GET | `/appversion` | JWT + roles(`admin`) | — | The settings (below). Sent with `Cache-Control: no-store` |
+| PUT | `/appversion` | JWT + roles(`admin`) | `{expectedRevision, version, build, enabled, ios, android, major}` | The saved settings. `409 {message, current}` if `expectedRevision` is stale; `400` on invalid input |
+
+```json
+{
+  "revision": 2,
+  "enabled": true,
+  "ios": true,
+  "android": true,
+  "version": "6.2.0",
+  "major": false,
+  "build": "12",
+  "updatedAt": "2026-10-16T10:00:00.000Z",
+  "updatedBy": "an-admin"
+}
+```
+
+- **Fields the apps read** (never rename them — installed apps depend on them): `enabled` (master switch), `ios` / `android` (which platforms are prompted), `version` (devices on an older version are prompted), `major` (the prompt has no *Not now* button). `build` is stored but not compared.
+- **Validation.** Every field is required. `version` is three numbers of at most three digits each (`6.2.0`; the apps compare `a·10⁶ + b·10³ + c`); `build` is up to 9 digits or empty; the flags are booleans; other fields are rejected.
+- **Revisions.** As for `/editor-visibility`: quote the revision you read. A document edited directly in the database has no revision and counts as `0`; the first save from the page makes it `1`. A save that changes nothing returns `200` without a new revision. Every save is audited as `appVersion.update` with the changed fields (old → new).
+- The apps and the page use the **first** document of the `appversions` collection; on an empty database the first save creates it.
 
 ## `/editor-visibility` — Simple/Advanced policy
 
@@ -206,6 +230,7 @@ Entries are written by the server after the action succeeded and never block it.
 | `game.create` | `POST /game` succeeded | `gameId`, `name`, `tasks` |
 | `game.update` | `PUT /game` changed something | `gameId`, `name`, `changedFields` — field **names** only; saves that change nothing write no entry |
 | `editorVisibility.update` | `PUT /editor-visibility` changed something | `fromRevision`, `toRevision`, `changes` (`{id, from, to}`) |
+| `appVersion.update` | `PUT /appversion` changed something | `fromRevision`, `toRevision`, `changes` (`{field, from, to}`) |
 | `security.rateLimit` (severity `alert`) | A rate limiter blocked a request | `endpoint`, … |
 
 ## Conventions and gotchas
