@@ -66,7 +66,6 @@ The iOS and Android apps check, every time they start, whether they are older th
    - **Update prompt** (both platforms):
      - **Show the update prompt** — the master switch. Off: no device is asked, whatever the other fields say.
      - **Important update** — the prompt has no *Not now* button.
-     - **Build number** — kept for reference; the apps do not compare it.
    - **Versions per platform** — a table with one column for iOS and one for Android, since they have their own version numbers:
      - **Ask devices to update** — whether the platform gets the prompt.
      - **Follow the store** — the latest version is always the newest version in that store ([App Store](https://apps.apple.com/us/app/geogami/id1614864078), [Google Play](https://play.google.com/store/apps/details?id=com.ifgi.geogami)), so a new release needs no change here. The cell then shows the store's version instead of a field.

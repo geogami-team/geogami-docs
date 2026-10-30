@@ -160,7 +160,7 @@ One document drives the update prompt of the iOS and Android apps. The apps read
 | GET | `/appversion/current` | public | `?platform=ios\|android` (optional) | `{message, content}` — the stored document (below) without `updatedBy`, with `version` set to the asking platform's version. Read by the apps. Sent with `Vary: User-Agent` |
 | GET | `/appversion/github-latest` | public | — | `{message, content: {version}}` — latest GitHub release tag without the `v` (cached 1 h); shown as the web app's version |
 | GET | `/appversion` | JWT + roles(`admin`) | — | The settings (below). Sent with `Cache-Control: no-store` |
-| PUT | `/appversion` | JWT + roles(`admin`) | `{expectedRevision, version, androidVersion, build, enabled, ios, android, major, followAppStore, followPlayStore}` | The saved settings. `409 {message, current}` if `expectedRevision` is stale; `400` on invalid input |
+| PUT | `/appversion` | JWT + roles(`admin`) | `{expectedRevision, version, androidVersion, enabled, ios, android, major, followAppStore, followPlayStore}` | The saved settings. `409 {message, current}` if `expectedRevision` is stale; `400` on invalid input |
 | GET | `/appversion/stores` | JWT + roles(`admin`) | — | `{ios, android}`, each `{version, releasedAt, storeUrl}` or `null` if the store has not answered since the server started — the newest release in the App Store and on Google Play (cached 15 min; `releasedAt` is always `null` for Google Play). Sent with `Cache-Control: no-store` |
 
 ```json
@@ -172,7 +172,6 @@ One document drives the update prompt of the iOS and Android apps. The apps read
   "version": "7.3.0",
   "androidVersion": "4.3.2",
   "major": false,
-  "build": "12",
   "followAppStore": false,
   "followPlayStore": false,
   "updatedAt": "2026-10-16T10:00:00.000Z",
@@ -180,10 +179,10 @@ One document drives the update prompt of the iOS and Android apps. The apps read
 }
 ```
 
-- **Fields the apps read** (never rename them — installed apps depend on them): `enabled` (master switch), `ios` / `android` (which platforms are prompted), `version` (devices on an older version are prompted), `major` (the prompt has no *Not now* button). `build` is stored but not compared.
+- **Fields the apps read** (never rename them — installed apps depend on them): `enabled` (master switch), `ios` / `android` (which platforms are prompted), `version` (devices on an older version are prompted), `major` (the prompt has no *Not now* button). `build` is read but not compared; it is no longer edited, so `/current` passes a stored value on unchanged (`PUT` rejects it as an unknown field).
 - **One version per platform.** iOS and Android have their own version numbers, but the apps read only `version`. The stored `version` is the iOS version and `androidVersion` the Android one; `/current` puts the asking platform's version into `version`. The platform comes from `?platform=` (sent by app builds from 30 Oct 2026 on) or, for apps installed before, from the user agent: Android's web view always contains `Android`, anything else counts as iOS. A document without `androidVersion` (from before it existed) gives Android the shared `version`.
 - **`followAppStore` / `followPlayStore`** are read only by the server: that platform then gets the newest store version instead of its stored version. The stored version stays the fallback while the store cannot be reached (after a failed lookup the server keeps the last good answer and asks again after a minute). Apple is asked through its public lookup API; Google Play has none, so the server reads the version from the public store page and uses it only if the page shows exactly one version.
-- **Validation.** Every field is required. `version` and `androidVersion` are three numbers of at most three digits each (`6.2.0`; the apps compare `a·10⁶ + b·10³ + c`); `build` is up to 9 digits or empty; the flags are booleans; other fields are rejected.
+- **Validation.** Every field is required. `version` and `androidVersion` are three numbers of at most three digits each (`6.2.0`; the apps compare `a·10⁶ + b·10³ + c`); the flags are booleans; other fields are rejected.
 - **Revisions.** As for `/editor-visibility`: quote the revision you read. A document edited directly in the database has no revision and counts as `0`; the first save from the page makes it `1`. A save that changes nothing returns `200` without a new revision. Every save is audited as `appVersion.update` with the changed fields (old → new).
 - The apps and the page use the **first** document of the `appversions` collection; on an empty database the first save creates it.
 
