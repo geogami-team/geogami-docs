@@ -93,7 +93,7 @@ Route areas, all rooted at the server origin:
 | `/editor-visibility` | Global Simple/Advanced editor policy (read by every editor, written by admins) | `GET` JWT; `PUT` `admin` |
 | `/audit/*` | Audit log (accounts, games, admin changes, security alerts) | `admin` |
 | `/file/*` | Photo/file upload | JWT |
-| `/appversion/*` | Client version checks (`/current`, `/github-latest`); update-prompt settings (`GET`/`PUT /appversion`) | Public; settings `admin` |
+| `/appversion/*` | Client version checks (`/current`, `/github-latest`); update-prompt settings (`GET`/`PUT /appversion`, `GET /appversion/stores`) | Public; settings `admin` |
 
 The complete endpoint documentation (payloads, responses, gotchas) is in the [REST API Reference](API_REFERENCE.md). Role checks are middleware (`AuthController.roleAuthorization([...])`) on each route — when adding endpoints, the route file in `src/routes/<area>/` is the single place where auth is declared.
 

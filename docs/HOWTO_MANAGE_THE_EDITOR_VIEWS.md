@@ -59,24 +59,29 @@ Everything not listed here is shown in Simple. These are **Advanced only** until
 
 ## App updates
 
-The iOS and Android apps check, every time they start, whether they are older than the version set here. If they are, they show an update prompt with a button to the App Store or Google Play. The web app is not affected.
+The iOS and Android apps check, every time they start, whether they are older than the version set here for their platform. If they are, they show an update prompt with a button to the App Store or Google Play. The web app is not affected.
 
 1. Open **App management → App updates**. The page shows the stored settings and who saved them last.
 2. Set the fields:
-   - **Show the update prompt** — the master switch. Off: no device is asked, whatever the other fields say.
-   - **Ask iOS devices** / **Ask Android devices** — which platforms get the prompt.
-   - **Latest version** — three numbers, for example `6.2.0` (each at most 999). Devices on an *older* version are asked. The newest release on GitHub is shown as a hint.
-   - **Important update** — the prompt has no *Not now* button.
-   - **Build number** — kept for reference; the apps do not compare it.
+   - **Update prompt** (both platforms):
+     - **Show the update prompt** — the master switch. Off: no device is asked, whatever the other fields say.
+     - **Important update** — the prompt has no *Not now* button.
+     - **Build number** — kept for reference; the apps do not compare it.
+   - **Versions per platform** — a table with one column for iOS and one for Android, since they have their own version numbers:
+     - **Ask devices to update** — whether the platform gets the prompt.
+     - **Follow the store** — the latest version is always the newest version in that store ([App Store](https://apps.apple.com/us/app/geogami/id1614864078), [Google Play](https://play.google.com/store/apps/details?id=com.ifgi.geogami)), so a new release needs no change here. The cell then shows the store's version instead of a field.
+     - **Latest version** — three numbers, for example `6.2.0` (each at most 999). Devices on an *older* version are asked.
+     - **In the store now** — the newest version in each store, with a link to the store page.
 3. **What devices will see** says in one sentence which devices are asked and shows the prompt as the apps display it (in your language; each device uses its own).
 4. Press **Save**. Saving an important update asks for confirmation first.
 
 !!! warning
-    Only enter a version that can **already be downloaded** from the store. With *Important update* on, devices below that version see a prompt without *Not now* each time the app starts.
+    Only enter a version that can **already be downloaded** from the store. With *Important update* on, devices below that version see a prompt without *Not now* each time the app starts. While a platform follows its store, that applies to **every** new release in that store.
 
 - **When it applies:** the next time someone opens the app (not while it is already running).
 - **Two administrators at once:** handled as for Editor visibility: the second save is refused, and *Reload latest version* applies your changes on top of the newer settings.
-- The same setting is used for both platforms; iOS and Android cannot have different version numbers.
+- **Following a store:** the server asks each store at most every 15 minutes, so a new release reaches the prompt within about 15 minutes of the store listing it. If a store cannot be reached, devices are compared with the last version the server read from it, or with the stored version (the store's version at the last save).
+- **Google Play** has no public version lookup, so the server reads the version from the public store page. If Google changes that page, the page says Google Play cannot be reached and Android devices get the stored Android version until it is fixed (`helpers/storeVersions.js` in the server).
 
 ## The audit log
 
