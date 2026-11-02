@@ -23,6 +23,7 @@ The API is served by Express on port **3000** (same server that hosts Socket.IO)
 - [`/appversion` — client version check](#appversion--client-version-check)
 - [`/editor-visibility` — Simple/Advanced policy](#editor-visibility--simpleadvanced-policy)
 - [`/audit` — audit log](#audit--audit-log)
+- [`/play-session` — live plays](#play-session--live-plays)
 - [Conventions and gotchas](#conventions-and-gotchas)
 
 ---
@@ -237,6 +238,32 @@ Entries are written by the server after the action succeeded and never block it.
 | `editorVisibility.update` | `PUT /editor-visibility` changed something | `fromRevision`, `toRevision`, `changes` (`{id, from, to}`) |
 | `appVersion.update` | `PUT /appversion` changed something | `fromRevision`, `toRevision`, `changes` (`{field, from, to}`) |
 | `security.rateLimit` (severity `alert`) | A rate limiter blocked a request | `endpoint`, … |
+
+## `/play-session` — live plays
+
+The app sends a few small messages per play: when it starts, when it ends, and whether the track was saved. Administrators see them on **App management → Live plays** (what is being played right now, and a searchable history). A play is recorded whether or not the player shares their track. No user, player name, IP address or location is stored; tracks are separate and unchanged.
+
+| Method | Path | Auth | Body / params | Returns |
+|---|---|---|---|---|
+| POST | `/play-session/events` | public (own rate limit: 600 per 15 min per IP, no audit entry; at most 120 new plays per IP and 1,000 in total per hour) | one message as JSON or `text/plain` (what `navigator.sendBeacon` sends), ≤ 2 KB — fields below | `204`; `400` for a malformed message or an unknown game; `413` if too large; `429` for a new play over the new-play limit. Never `403` |
+| GET | `/play-session/live` | JWT + roles(`admin`) | — | `{serverTime, counts: {playing, saving}, items, truncated}` — plays first seen in the last 24 h, newest first (≤ 500); the counts are exact |
+| GET | `/play-session` | JWT + roles(`admin`) | query: `limit` (1–100, default 50), `before` (cursor from `nextCursor`), `from` / `to` (dates), `game` / `event` (id or part of the name), `status`, `save`, `playId` (whole id or its beginning) | `{serverTime, items, hasMore, nextCursor}` — newest first |
+
+**Message fields.** Every message carries the whole description of the play, so whichever arrives first creates a complete record: `type` (`start` \| `end` \| `resume` \| `upload`), `playId` (random UUID made by the app), `game`, `event` (or `null`), `world` (`real` \| `virtual`), `mode` (`single` \| `multi`), `rejoin`, `platform` (`web` \| `ios` \| `android` \| `electron` \| `unknown`), `embedded`, `appVersion`, `appBuild`, `webVersion` (release tag plus commits since it, e.g. `6.0.1+62`), `webCommit`, `webDeployId`, `webBuiltAt` (a date; anything else is dropped), `seq` (the message's number within the play), `clientTime`. An `end` adds `reason` (`finished` \| `left` \| `closed`) and `elapsedMs` (play time on the device's monotonic clock); an `upload` adds `status` (`not_requested` \| `pending` \| `saved` \| `failed`) and `httpStatus` (`0` = no answer).
+
+**Rules.** Each message is one atomic update, so messages that arrive twice, at the same moment or out of order still give the right record:
+
+- A second `start` changes nothing. An `end` that arrives before its `start` creates the record; the `start` fills it in later.
+- `finished` and `left` are definitive: the first one wins. `closed` comes from the browser's `pagehide` and is provisional — it is set only if there is no end yet, a later `finished`/`left` replaces it, and `resume` (the page came back from the back/forward cache) clears it. `seq` orders the two: a `closed` older than a resume already recorded is ignored, and a resume older than the `closed` does not clear it.
+- The save status only moves forward: none → `not_requested`/`pending` → `saved`/`failed`.
+
+**Status shown** (worked out when read): `playing`; `finished`, `left` or `closed`; `abandoned` = no end 1.5 h after the first message. Save: `saved`, `failed`, `pending`, `not_requested`, and `unknown` = still `pending` 10 min after it was reported. `startMissing` marks a record whose start never arrived.
+
+**VE plays.** In the VE the game page runs in the web app that the VE loads into its frame, so its own platform is always `web`. It asks the app around the VE (postMessage `geogami:host-info-request`, answered by `playing-virenv` with `geogami:host-info`) and records that app's `platform`, `appVersion` and `appBuild`, with `embedded: true`; the `web…` fields stay those of the game page. App builds from before this was added don't answer, and the play is recorded with `platform: "unknown"`.
+
+**New-play limit.** The endpoint is public, so anyone could make up plays. Messages that would create a record count against 120 new plays per IP and 1,000 in total per hour (in memory, reset when the API restarts); over it, they still update existing records but create none (`429`). Messages about plays that already have a record are not limited this way.
+
+Records expire 12 months after their first message. Older app builds do not send these messages, so their plays do not appear.
 
 ## Conventions and gotchas
 

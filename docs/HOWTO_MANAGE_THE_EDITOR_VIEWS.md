@@ -17,13 +17,14 @@ Only accounts with the **`admin`** role. A `contentAdmin` can neither open these
 
 ## App management
 
-Administrators see an **App management** card on the app's start page. It opens a page with four tools:
+Administrators see an **App management** card on the app's start page. It opens a page with five tools:
 
 | Tool | What it is for |
 |---|---|
 | **Users** | List, create, edit and delete accounts; change roles. |
 | **Editor visibility** | Choose which optional controls the Simple view shows (this guide). |
 | **App updates** | Ask iOS and Android users to update the app: see [App updates](#app-updates). |
+| **Live plays** | Which games are being played right now, and the history of plays: see [Live plays](#live-plays). |
 | **Audit log** | Who did what: see [The audit log](#the-audit-log). A number on the card and on this tool counts the entries you have not read yet. |
 
 ## Editor visibility
@@ -81,6 +82,31 @@ The iOS and Android apps check, every time they start, whether they are older th
 - **Two administrators at once:** handled as for Editor visibility: the second save is refused, and *Reload latest version* applies your changes on top of the newer settings.
 - **Following a store:** the server asks each store at most every 15 minutes, so a new release reaches the prompt within about 15 minutes of the store listing it. If a store cannot be reached, devices are compared with the last version the server read from it, or with the stored version (the store's version at the last save).
 - **Google Play** has no public version lookup, so the server reads the version from the public store page. If Google changes that page, the page says Google Play cannot be reached and Android devices get the stored Android version until it is fixed (`helpers/storeVersions.js` in the server).
+
+## Live plays
+
+The app tells the server when a play starts and ends, and whether its track was saved. **App management → Live plays** shows this. No player names, accounts or locations are recorded, and plays count whether or not the player shares their track.
+
+- **Now** shows how many games are being played and how many tracks are still being saved, the plays running now, and the other plays of the last 24 hours. It refreshes every 30 seconds while it is open. The time of the last successful refresh is shown at the top; if a refresh fails, the page keeps the last data and says how old it is, so a failed refresh never looks like "nobody is playing".
+- **History** searches all plays by date, game, event, status, track status or play ID, 50 at a time.
+- Tap a play to see its details: the full play ID, the server's and the device's times, and the exact web build and app version it ran on.
+- **Web build** reads like `6.0.1+62`: the release (GitHub tag `v6.0.1`) plus the number of changes deployed after it, then the commit and Netlify deploy. It is filled in only for builds made on Netlify; apps run from a developer's computer show `local`. iOS and Android plays also show the app version and build number, e.g. `app 4.4.0 (18)`.
+- **VE plays** show the platform of the app around the virtual environment, e.g. `ios (via the virtual environment)`. Apps released before this was added cannot tell, and their VE plays show `unknown`.
+
+| Status | Meaning |
+|---|---|
+| Playing | Started, no end yet. |
+| Finished | All tasks done. The track badge says whether the track was saved, failed to save (with the error code), is still being saved, was not shared, or never reported back (*unknown*, after 10 minutes). |
+| Left the game | The player left through the app. |
+| Probably closed | The browser reported that the page was closed. Not confirmed: if the page comes back (browser *Back*), the play continues. |
+| Abandoned | No end arrived within 1.5 hours, e.g. the app was swiped away, the phone died or lost its connection. |
+
+**Problem reports.** At the end of a game, players can tap **Copy diagnostic details** and paste the text into their report. It contains the play ID, the game and the build, not the player's name. Paste the play ID into the *Play ID* filter of **History** to find the play.
+
+**Before deploying the server:** check *Now* — ideally no plays running and no tracks being saved.
+
+!!! note
+    Only app versions that include this page report plays. Plays in older web tabs and in iOS/Android apps that have not been updated do not appear, so the numbers are a lower bound until most devices have updated.
 
 ## The audit log
 
