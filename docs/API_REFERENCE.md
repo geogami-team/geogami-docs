@@ -30,7 +30,7 @@ The API is served by Express on port **3000** (same server that hosts Socket.IO)
 
 ## Authentication model
 
-- **JWT bearer tokens.** Authenticated endpoints expect `Authorization: Bearer <token>`. Tokens are issued by `POST /user/login` and renewed with `POST /user/refresh-auth` (refresh tokens are stored per user and individually revocable).
+- **JWT bearer tokens.** Authenticated endpoints expect `Authorization: Bearer <token>`. Tokens are issued by `POST /user/login` and renewed with `POST /user/refresh-auth` (refresh tokens are stored per user and individually revocable). Access tokens last one hour and name the account by its id (`sub`), so a token never carries over to another account that later uses the same email address. Older tokens that named the account by email are refused; the app renews its session through the refresh token whenever it opens.
 - **Roles.** Some endpoints additionally require a role: `admin`, `contentAdmin`, `trackAccess`, `scholar` (see the [Glossary](GLOSSARY.md#platform--access)). In the tables below: *JWT* = any authenticated user; *JWT + roles(...)* = listed roles only; *public* = no auth.
 - **Email verification.** Login succeeds even with an unconfirmed email but returns `needsEmailVerification: true`; the client is expected to route the user to the verification page instead of the app.
 
@@ -54,9 +54,9 @@ POST /user/login
 | POST | `/user/login` | public | `{username, password}` — `username` accepts username **or** email | `{code, message, user, token, refreshToken}` (+ `needsEmailVerification` if unconfirmed) |
 | POST | `/user/refresh-auth` | public | `{token: <refreshToken>}` | `{code, message, data:{user}, token, refreshToken}` — rotates both tokens |
 | GET | `/user/logout` | — | — | Legacy session logout; redirects to `/` (JWT clients just discard tokens) |
-| GET | `/user/confirm-email` | public | query params from the emailed link | Confirms the address; promotes `unconfirmedEmail` → `email` |
-| POST | `/user/request-password-reset` | public | `{email: {email: "<address>"}}` (note the nesting) | Emails a verification code |
-| POST | `/user/password-reset` | public | `{newPassword, email, verificationCode}` | Sets the new password |
+| GET | `/user/confirm-email` | public | `id` and `token` from the emailed link | Confirms the address (the token must match the latest emailed one; each resend replaces it); promotes `unconfirmedEmail` → `email`. Redirects to the app's login page with a status message |
+| POST | `/user/request-password-reset` | public | `{email: {email: "<address>"}}` (note the nesting) | Emails a 5-digit code, valid 3 h. Answers `200` with the same message whether or not the address has an account; `400` only for a malformed address. 5 requests per hour per IP |
+| POST | `/user/password-reset` | public | `{newPassword, email, verificationCode}` | Sets the new password. The code works once and is discarded after 5 wrong tries; every failure answers "Incorrect or expired verification code." 10 requests per 15 min per IP |
 
 ### Own account (JWT)
 
@@ -65,8 +65,8 @@ POST /user/login
 | GET | `/user/myuser` | JWT | — | Current user document |
 | PUT | `/user/profile` | JWT | profile fields (own `_id` only) | Updated user |
 | POST | `/user/changepass` | JWT | `{oldPassword, newPassword}` | Confirmation |
-| POST | `/user/change-mail` | JWT | `{mail}` | Sends confirmation link to the **new** address; address switches only after the link is opened |
-| POST | `/user/resend-verification` | JWT | — | Resends the verification email; **60 s cooldown** per user (`429` with `retryAfter` when hit) |
+| ~~POST~~ | ~~`/user/change-mail`~~ | — | — | **Disabled** (answers `404`): changing the account email is switched off. The code is commented out in `authController.js` and `routes/user/index.js` |
+| POST | `/user/resend-verification` | JWT | — | Resends the verification email with a new link (older links stop working), to the address the link confirms; **60 s cooldown** per user (`429` with `retryAfter` when hit) |
 | POST | `/user/delete-me` | JWT | — | Deletes own account |
 | GET | `/user/games` | JWT | — | Games created by the caller (`contentAdmin`: all visible games); hidden (`isVisible: false`) games excluded |
 
@@ -77,10 +77,10 @@ POST /user/login
 | GET | `/user/user/` | — | All users |
 | GET | `/user/user/:id` | — | One user; `404` if missing |
 | POST | `/user/user/` | user fields | Creates a user (password hashed, verification email sent) |
-| PUT | `/user/user/:id` | fields to update | Updated user |
+| ~~PUT~~ | ~~`/user/user/:id`~~ | — | **Disabled** (answers `404`): no screen used it. Roles change through `PUT /user/update-role`. The code is commented out in `routes/user/index.js` |
 | PUT | `/user/update-role` | `{_id, roles: [<role>]}` | Sets the user's role (single role; replaces the list) |
 | DELETE | `/user/user/:id` | — | Deletes the user |
-| POST | `/user/user/:id/resend-verification` | — | Resends verification on the user's behalf; regenerates the token so old links die |
+| POST | `/user/user/:id/resend-verification` | — | Resends verification on the user's behalf, to the address the link confirms; regenerates the token so old links die |
 | POST | `/user/user/:id/trigger-password-reset` | — | Emails a reset code to the user |
 | GET | `/user/user/:id/games` | — | `{user, games: [...]}` — the user's games incl. per-game `tracksCount` |
 
@@ -88,14 +88,14 @@ POST /user/login
 
 | Method | Path | Auth | Body / params | Returns |
 |---|---|---|---|---|
-| GET | `/game/all` | public | — | **Published** games only (public game list). Drafts excluded |
+| GET | `/game/all` | public, optional JWT | — | **Published** games only (public game list). Drafts excluded. Never includes `sharedWith`; `editors` is `[]`, or `[<your email>]` when a JWT is sent and you are a confirmed co-author |
 | GET | `/game/allmultiplayer` | public | — | **Published** multiplayer games |
 | GET | `/game/allwithlocs` | public | — | **Published** games with their locations (map overview) |
 | GET | `/game/drafts` | JWT | — | **Draft** (unpublished) games visible to the caller: `admin`/`contentAdmin` get *every* draft (Drafts tab); any other user gets *their own* drafts (My Games + draft badge) |
-| GET | `/game/:id` | public | — | One full game definition (tasks, settings) |
+| GET | `/game/:id` | public, optional JWT | — | One full game definition (tasks, settings). Same share-list rule as `/game/all` |
 | GET | `/game/usergames` | JWT + roles(`admin`, `contentAdmin`, `trackAccess`, `scholar`) | — | Games the caller can **evaluate**: games they created, games shared with them (email in `sharedWith`), games they **instruct** (a track's `instructor` is them), or games with a track **shared** with them — only those with ≥ 1 *visible* track. **Not filtered by publish state** (drafts can be evaluated/shared). Used by the dashboard |
 | POST | `/game/` | JWT | full game definition | Created game. The app saves new games as drafts (`isPublished: false`) |
-| PUT | `/game/` | JWT — owner, co-author (`editors`), or `admin` | game incl. `_id` | Updated game; `405` if not authorized |
+| PUT | `/game/` | JWT — owner, co-author (`editors`), or `admin` | game incl. `_id` | Updated game; `405` if not authorized, `404` for an unknown or malformed `_id`. Only the game's content fields are applied (the list is `EDITABLE_GAME_FIELDS` in `putGame.js`); owner and sharing (share endpoints), `isPublished` (publish endpoint), `isVisible` (delete endpoint) and any MongoDB operators in the body are ignored |
 | PUT | `/game/:id/publish` | JWT — owner, co-author (`editors`), or `admin` | `{isPublished: true \| false}` | Publish a draft or move a published game back to draft; `405` if not authorized |
 | PUT | `/game/delete/:id` | JWT — owner or `admin`/`contentAdmin` | — | **Soft delete**: sets `isVisible: false` (data and tracks remain; the game disappears from lists). Co-authors **cannot** delete |
 | POST | `/game/:id/share` | JWT — creator or `admin` | `{emails: ["a@b.c", …]}` | Grants **track** access; rejects the owner's own email and unregistered addresses |
@@ -274,7 +274,8 @@ Records expire 12 months after their first message. Older app builds do not send
 - **Nested reset payload.** `POST /user/request-password-reset` expects `{email: {email: "..."}}`, not a flat field.
 - **Unauthenticated writes.** `POST /track`, `PUT /track`, and `POST /file/upload` enforce no authentication (tracked as a known issue). Anything else that mutates data requires a JWT.
 - **Audit trail.** Account creation, game creation and game edits (as well as deletions, password/email/role changes and editor-visibility changes) leave an [audit entry](#audit--audit-log); `game.update` lists which fields changed, never their values.
-- **Public game definitions.** `GET /game/:id` and the `/game/all*` lists are public by design (games are playable without an account); only *track* data is role-protected.
+- **Public game definitions.** `GET /game/:id` and the `/game/all*` lists are public by design (games are playable without an account); only *track* data is role-protected. They never list who a game is shared with (see the `/game/all` row).
+- **Sharing needs a confirmed email.** `sharedWith` and `editors` (games, events, tracks) hold email addresses, often of people without an account yet. An account gains nothing through them until its email is confirmed via the emailed link. Login still issues a token to unconfirmed accounts (for the verify-email page).
 
 ---
 
