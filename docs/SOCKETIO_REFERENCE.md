@@ -99,15 +99,17 @@ Coordination of multiplayer games played in the real world: an **instructor** (t
 |---|---|---|---|
 | `checkAbilityToJoinGame` | app → server (callback) | `{gameCode, gameNumPlayers}` → callback `{isRoomFull: bool}` | Checked before joining (also used by virtual multiplayer games) |
 | `joinGame` | app → server | `{roomName, playerName}` | Without `playerName` ⇒ the **instructor** joins. Players are appended to the room roster |
-| `assignPlayerNumber` | server → joining player | `{playerNo, playerID}` | Player's index (used e.g. for the shared multiplayer track) |
+| `assignPlayerNumber` | server → joining player | `{playerNo, playerID, playerKey}` | Player's index (used e.g. for the shared multiplayer track) and their **player key**: the credential for uploading their part of the play (see below). Apps before player keys ignore it |
 | `playerJoined` | server → others in room | `{joinedPlayersCount}` | Lets clients start the game when everyone is in |
 | `checkPlayerPreviousJoin` | app → server (callback) | `{playerName, playerNo, roomName}` → callback `{isDisconnected, joinedPlayersCount}` | Reconnect flow: a returning player resumes their slot |
 | `changePlayerConnectionStauts` | app → server | `"connected"` \| `"disconnected"` \| `"finished tasks"` | Also fired server-side on socket disconnect; `finished tasks` is final |
 | `onPlayerConnectionStatusChange` | server → instructor | roster array `[{id, name, connectionStatus}]` | Sent on every join/status change |
 | `requestPlayersLocation` | instructor app → server → players | — (relayed as `requestPlayerLocation`) | Instructor polls player positions |
 | `updatePlayersLocation` | player app → server → instructor | `{roomName, playerLoc, playerNo}`, relayed as `updateInstrunctorMapView` `{playerLoc, playerNo}` | Drives the instructor's live map |
-| `updateGameTrackStauts` | app → server | `{roomName, storedTrack_id}` | First player to upload the shared track registers its ID |
-| `checkGameStatus` | app → server (callback) | `roomName` → callback `{trackDataStatus: {status, track_id}}` | Other players check whether to create or update the shared track |
+| `updateGameTrackStauts` | app → server | `{roomName, storedTrack_id, playerKey}` | First player to upload the shared track registers its ID. With a key the ID is not used: the server finds the group's track itself. Without a key (older apps) the ID is kept, until keys are required and only while the game has no track of its own |
+| `checkGameStatus` | app → server (callback) | `roomName` → callback `{trackDataStatus: {status, track_id}}` | Other players check whether to create or update the shared track. The server looks the track up by the room's current game session (else an older app's announced ID). An unknown room, or a failed lookup, answers `{status: false}`, so the app uploads with `POST`, which still joins the group's track |
+
+**Player keys.** Players may play without an account, so the track routes can't tell who is calling. Each player therefore gets a key on joining (`assignPlayerNumber`) that names the room's current game and their slot, signed by the server (`src/helpers/playerKeys.js`). The first finisher sends it with `POST /track`: the server builds the group's track with only that player's slot and ties it to the game (one track per game session, so players finishing at the same moment end up in one track). The others send theirs with `POST` or `PUT /track` and can only fill their own slot. Apps released before player keys send none and are accepted until `MULTIPLAYER_REQUIRE_PLAYER_KEYS=true` is set on the API, which should happen once every app in use sends keys. A key that is sent must always be right.
 
 ## VE multiplayer avatar sync (VE ↔ server ↔ VE)
 
@@ -139,7 +141,7 @@ All coordination state is held **in memory** in `src/index.js` — relevant when
 |---|---|
 | `clientRooms` | socket.id → pairing-room name (used to route relays like `closeWebGLFrame`) |
 | `roomsData` | room → player roster `[{id, name, connectionStatus}]` (real-world multiplayer) |
-| `gameStatus` | room → `{status, track_id}` — whether the shared multiplayer track exists yet |
+| `groupUploads` | room → current game's session id (signs its player keys) and the track ID an older app announced (`src/helpers/groupUploads.js`); the group's own track is looked up in the database by session |
 | `instructorID` | room → instructor's socket.id |
 | `roomVRWorldType_Mode` | room → `{virEnvType, isSingleMode}` |
 | `virEnvClientsData` | `multiVirRoom` → VE player roster (name, position, rotation, walkVal, playerNo) |
